@@ -35,12 +35,12 @@ int main()
 	a.SetLoadBrief(a1[0]);
 
 	a.GetDSTypesFromDB();
-	
+
 	a.GetLoadInfo();
 	
-	a.ShowLoadBrief();
+	//a.ShowLoadBrief();
 
-	
+    	
 
 	system("pause");
 

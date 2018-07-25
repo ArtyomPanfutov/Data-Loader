@@ -28,21 +28,28 @@ void FALoad::GetLoadInfo()
                                        PathOutput,\
                                        ParamList,\
                                        OEMToANSI,\
-                                       ContextID\
+                                       SetupFormula,\
+                                       LastFormula\
                                   from tImportFile with (nolock)\
                                  where Brief = ? and ImportType = 5";
 	
-	double ImportFileID;
-	SQLINTEGER cbImportFileID,
-		       cbBrief = SQL_NTS,
-		       cbDelimiter,
-		       DSBRIEFNAME_Length;
+
+	SQLINTEGER
+		cbImportFileID,
+		cbBrief = SQL_NTS,
+		cbDelimiter,
+		cbPathInput,
+		cbPathOutput,
+		cbParamList,
+		cbOEMToANSI,
+		cbSetupFormula,
+		cbLastFormula;
 
 	try
 	{
 		retcode = SQLBindParameter( hstmt, 
 			                        1,
-			                        SQL_PARAM_INPUT,
+			                        SQL_PARAM_INPUT,\
 			                        SQL_C_CHAR, 
 			                        SQL_VARCHAR,
 			                        10,
@@ -67,16 +74,9 @@ void FALoad::GetLoadInfo()
 
 		if (retcode == SQL_SUCCESS)
 		{
-			// Get the length of DS types
-			for (auto i = 0; i < DSTypes.size(); i++)
-			{
-				//std::cout << DSTypes[i]->Name << std::endl;
-				if (DSTypes[i]->Name == "DSBRIEFNAME")
-				{
-					std::cout << "\nlength " << DSBRIEFNAME_Length;
-					DSBRIEFNAME_Length = DSTypes[i]->Length;
-				}
-			}
+			
+
+				
 			while (TRUE)
 			{
 				retcode = SQLFetch(hstmt);
@@ -103,16 +103,87 @@ void FALoad::GetLoadInfo()
 										  2,
 										  SQL_C_CHAR,
 										  &Delimiter,
-										  DSBRIEFNAME_Length + 1,
-										  &cbDelimiter);
+										  sizeof(Delimiter),
+										  &cbDelimiter );
 
 					if (retcode != SQL_SUCCESS)
 						throw SQLException("GetLoadInfo failed! SQLGetData(Delimiter)", retcode);
 
+					// PathInput									
+					retcode = SQLGetData( hstmt,
+						                  3,
+						                  SQL_C_CHAR,
+						                  &PathInput,
+						                  sizeof(PathInput),
+						                  &cbPathInput );
+
+					if (retcode != SQL_SUCCESS)
+						throw SQLException("GetLoadInfo failed! SQLGetData(PathInput)", retcode);
+
+					// PathOutput								
+					retcode = SQLGetData( hstmt,
+						                  4,
+						                  SQL_C_CHAR,
+						                  &PathOutput,
+						                  sizeof(PathOutput),
+						                  &cbPathOutput );
+
+					if (retcode != SQL_SUCCESS)
+						throw SQLException("GetLoadInfo failed! SQLGetData(PathOutput)", retcode);
+
+					// ParamList							
+					retcode = SQLGetData( hstmt,
+						                  5,
+						                  SQL_C_CHAR,
+						                  &ParamList,
+						                  sizeof(ParamList),
+						                  &cbParamList );
+
+					if (retcode != SQL_SUCCESS)
+						throw SQLException("GetLoadInfo failed! SQLGetData(ParamList)", retcode);
+
+					// OEMToANSI
+					retcode = SQLGetData( hstmt,
+						                  6,
+						                  SQL_C_DOUBLE,
+						                  &OEMToANSI,
+						                  10,
+						                  &cbOEMToANSI);
+
+					if (retcode != SQL_SUCCESS)
+						throw SQLException("GetLoadInfo failed! SQLGetData(OEMToANSI)", retcode);
+
+					// SetupFormula
+					retcode = SQLGetData( hstmt,
+					                      7,
+						                  SQL_C_DOUBLE,
+						                  &SetupFormula,
+						                  10,
+						                  &cbSetupFormula );
+
+					if (retcode != SQL_SUCCESS)
+						throw SQLException("GetLoadInfo failed! SQLGetData(SetupFormula)", retcode);
+
+					// LastFormula
+					retcode = SQLGetData( hstmt,
+						                  8,
+						                  SQL_C_DOUBLE,
+						                  &LastFormula,
+						                  10,
+						                  &cbLastFormula );
+
+					if (retcode != SQL_SUCCESS)
+						throw SQLException("GetLoadInfo failed! SQLGetData(LastFormula)", retcode);
 
 					std::cout.setf(std::ios::fixed);
 					std::cout << "\n ImportFileID " << ImportFileID;
 					std::cout << "\n Delimiter " << Delimiter;
+					std::cout << "\n PathInput " << PathInput;
+					std::cout << "\n PathOutput " << PathOutput;
+					std::cout << "\n ParamList " << ParamList;
+					std::cout << "\n OEMToANSI " << OEMToANSI;
+					std::cout << "\n SetupFormula " << SetupFormula;
+					std::cout << "\n LastFormula" << LastFormula;
 				}
 				else
 				{
@@ -135,6 +206,11 @@ void FALoad::GetLoadInfo()
 	{
 		ex.ShowMessage(hstmt);
 	}
+	catch (std::exception &ex)
+	{
+		std::cout << ex.what();
+	}
+	
 }// End of GetLoadInfo()
 //---------------------------------------------------------------------
 
@@ -152,7 +228,7 @@ void FALoad::SetLoadBrief(SQLCHAR &Brief)
 ///////////////////////////////////////////////////////////////////////
 void FALoad::ShowLoadBrief()
 {
-	std::cout << "\n Сокращение загрузки: " << LoadBrief;
+	  std::cout << "\n Сокращение загрузки: " << LoadBrief;
 } // End of ShowLoadBrief()
 //--------------------------------------------------------------------
 
@@ -256,6 +332,31 @@ void FALoad::GetDSTypesFromDB()
   {
 	ex.ShowMessage(hstmt);
   }
+
+
+  // Write into variables
+  for (auto i = 0; i < DSTypes.size(); i++)
+  {
+
+	  if (strcmp(DSTypes[i]->Name, "DSBRIEFNAME") == 0)
+	  {
+		  DSBRIEFNAME_Length = DSTypes[i]->Length;
+	  }
+	  else if (strcmp(DSTypes[i]->Name, "DSCOMMENT") == 0)
+	  {
+		  DSCOMMENT_Length = DSTypes[i]->Length;
+	  }
+
+
+  }
+
+  if (DSBRIEFNAME_Length < 0)
+	  throw std::exception("\nType DSBRIEFNAME has incorrect length!\n");
+
+  if (DSCOMMENT_Length < 0)
+	  throw std::exception("\nType DSCOMMENT has incorrect length!\n");
+
+
 } // End of GetDSTypesFromDB()
 //---------------------------------------------------------------------------------
 

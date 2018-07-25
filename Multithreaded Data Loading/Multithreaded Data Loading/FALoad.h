@@ -23,27 +23,33 @@ struct DSType
 /////////////////////////////////////////////////////////////
 class FALoad : public Connection
 {
-  private:
-	SQLINTEGER SetupFormula, // Идентификатор формулы предобработки
-	           LastFormula,  // Идентификатор формулы постобработки
-		       ContextID;    // Идентификатор формулы для параметров
-
-	const short int ImportType = 5; // Тип загрузки: BCP
-
   public:
-    SQLCHAR *LoadBrief,                     // Сокращение загрузки
-		     Delimiter; // Символ разделитель
-
 	std::vector <DSType *> DSTypes; // Для хранения типов данных из БД Диасофт
+
+	SQLINTEGER
+		DSBRIEFNAME_Length,
+		DSCOMMENT_Length;
+
+	double
+		ImportFileID, // Идентификатор загрузки
+		OEMToANSI,    // Флаг OEM\ANSI
+		ContextID,    // Идентификатор формулы с параметрами
+		SetupFormula, // Идентификатор формулы предобработки
+		LastFormula;  // Идентификатор формулы постаброботки
+
+	SQLCHAR  
+		*LoadBrief,       // Сокращение загрузки
+		 Delimiter[11],   // Символ разделитель
+	     PathInput[256],  // Путь к файлу загрузки 
+		 PathOutput[256], // Путь для сохранения файла
+		 ParamList[256];  // Таблица для загрузки BCP
 	
-
-
-
+	
     FALoad();
-	void SetLoadBrief(SQLCHAR &);
-	void ShowLoadBrief();
-    void GetLoadInfo();
-	void GetDSTypesFromDB();
+	void SetLoadBrief(SQLCHAR &); // Записать сокращение загрузки
+	void ShowLoadBrief();         // Вывести на экран сокращение загрузки
+    void GetLoadInfo();           // Начитка информации о загрузке из БД
+    void GetDSTypesFromDB();      // Начитать типы данных Диасофт
 };
 
 
