@@ -1,0 +1,20 @@
+#ifndef FALoader_H
+#define FALoader_H
+// FALoader.h
+// created: 2018-07-22
+// modified:
+// author: Artyom Panfutov
+
+#include "connection.h"
+
+/////////////////////////////////////////////////////////////
+class FALoad : public Connection
+{
+  private:
+  
+  public:
+
+};
+
+
+#endif //FALoader_H

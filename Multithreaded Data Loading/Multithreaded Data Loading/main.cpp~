@@ -1,0 +1,25 @@
+// main.cpp 
+// created: 2018-07-21
+// modified:
+// author: Artyom Panfutov
+
+#include <iostream>
+#include <cstdlib>
+#include "connection.h"
+
+
+
+
+
+
+int main()
+{
+	Connection a;
+
+	a.DriverConnectAndAllocHandle();
+
+	a.TestConnection(1);
+	
+	system("pause");
+	return 0;
+}
