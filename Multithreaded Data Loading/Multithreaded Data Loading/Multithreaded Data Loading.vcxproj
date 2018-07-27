@@ -121,6 +121,7 @@
     <ClCompile Include="SQLException.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AsyncLoad.h" />
     <ClInclude Include="connection.h" />
     <ClInclude Include="constant.h" />
     <ClInclude Include="FALoad.h" />

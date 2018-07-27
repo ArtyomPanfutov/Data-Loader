@@ -1,5 +1,3 @@
 ﻿  FALoad.cpp
-d:\apanfutov\black hole\c++_proj\multithreaded data loading\multithreaded data loading\multithreaded data loading\faload.cpp(338): warning C4018: <: несоответствие типов со знаком и без знака
-  main.cpp
-  Создание кода...
+d:\apanfutov\black hole\c++_proj\multithreaded data loading\multithreaded data loading\multithreaded data loading\faload.cpp(370): warning C4018: <: несоответствие типов со знаком и без знака
   Multithreaded Data Loading.vcxproj -> D:\apanfutov\black hole\c++_proj\Multithreaded Data Loading\Multithreaded Data Loading\Debug\Multithreaded Data Loading.exe

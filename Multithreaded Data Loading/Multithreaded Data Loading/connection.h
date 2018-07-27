@@ -16,11 +16,12 @@ class Connection
 {
   private:
     // Data for connection string
-    SQLCHAR UID[SQL_USERNAME_MAX_LENGTH],
-		    PWD[SQL_PASSWORD_MAX_LENGTH],
-		    Server[SQL_INSTANCE_MAX_LENGTH],
-		    Database[SQL_DB_MAX_LENGTH],
-		    Driver[SQL_DRIVER_MAX_LENGTH];
+    SQLCHAR 
+		UID[SQL_USERNAME_MAX_LENGTH],
+	    PWD[SQL_PASSWORD_MAX_LENGTH],
+        Server[SQL_INSTANCE_MAX_LENGTH],
+	    Database[SQL_DB_MAX_LENGTH],
+	    Driver[SQL_DRIVER_MAX_LENGTH];
 
   protected:
 	SQLHENV henv;

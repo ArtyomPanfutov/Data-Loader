@@ -37,6 +37,9 @@ int main()
 	a.GetDSTypesFromDB();
 
 	a.GetLoadInfo();
+
+	a.GetSetupParamsFromDB();
+	a.GetLastParamsFromDB();
 	
 	//a.ShowLoadBrief();
 

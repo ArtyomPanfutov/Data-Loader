@@ -8,13 +8,38 @@
 #include <string>
 
 /***********************************************************************
-************* Definiton of functions. Class FALoader *******************
+*************** Definiton of methods. Class FALoader *******************
 ***********************************************************************/
 
 // Constructor FALoader()
 ////////////////////////////////////////////////////////////////////////
 FALoad::FALoad() : Connection()
 {  }
+// End of constructor FALoader()
+// ---------------------------------------------------------------------
+
+
+// Constructor FALoader()
+////////////////////////////////////////////////////////////////////////
+FALoad::~FALoad(void) 
+{
+	// DSTypes
+	for (auto i = 0; i < DSTypes.size(); i++)
+		delete (DSTypes[i]);
+	DSTypes.clear();
+
+	// SetupFormulaParams
+	for (auto i = 0; i < SetupFormulaParams.size(); i++)
+		delete (SetupFormulaParams[i]);
+	SetupFormulaParams.clear();
+
+	// LastFormulaParams
+	for (auto i = 0; i < LastFormulaParams.size(); i++)
+		delete (LastFormulaParams[i]);
+	LastFormulaParams.clear();
+
+	
+}
 // End of constructor FALoader()
 // ---------------------------------------------------------------------
 
@@ -49,7 +74,7 @@ void FALoad::GetLoadInfo()
 	{
 		retcode = SQLBindParameter( hstmt, 
 			                        1,
-			                        SQL_PARAM_INPUT,\
+			                        SQL_PARAM_INPUT,
 			                        SQL_C_CHAR, 
 			                        SQL_VARCHAR,
 			                        10,
@@ -201,6 +226,11 @@ void FALoad::GetLoadInfo()
 		if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
 			throw SQLException("GetLoadInfo failed! SQLFreeStmt failed!", retcode);
 
+		this->GetFormulaText(hstmt, SetupFormula, SetupFormulaStr);
+		this->GetFormulaText(hstmt, LastFormula, LastFormulaStr);
+		std::cout << "\n SetupFormulaStr:\n" << SetupFormulaStr;
+		std::cout << "\n SetupFormulaStr:\n" << LastFormulaStr;
+
 	}
 	catch (SQLException &ex)
 	{
@@ -335,27 +365,33 @@ void FALoad::GetDSTypesFromDB()
 
 
   // Write into variables
-  for (auto i = 0; i < DSTypes.size(); i++)
+  try
   {
-
-	  if (strcmp(DSTypes[i]->Name, "DSBRIEFNAME") == 0)
+	  for (auto i = 0; i < DSTypes.size(); i++)
 	  {
-		  DSBRIEFNAME_Length = DSTypes[i]->Length;
-	  }
-	  else if (strcmp(DSTypes[i]->Name, "DSCOMMENT") == 0)
-	  {
-		  DSCOMMENT_Length = DSTypes[i]->Length;
-	  }
+
+		  if (strcmp(DSTypes[i]->Name, "DSBRIEFNAME") == 0)
+		  {
+			  DSBRIEFNAME_Length = DSTypes[i]->Length;
+		  }
+		  else if (strcmp(DSTypes[i]->Name, "DSCOMMENT") == 0)
+		  {
+			  DSCOMMENT_Length = DSTypes[i]->Length;
+		  }
 
 
+	  }
+
+	  if (DSBRIEFNAME_Length < 0)
+		  throw std::exception("\nType DSBRIEFNAME has incorrect length!\n");
+
+	  if (DSCOMMENT_Length < 0)
+		  throw std::exception("\nType DSCOMMENT has incorrect length!\n");
   }
-
-  if (DSBRIEFNAME_Length < 0)
-	  throw std::exception("\nType DSBRIEFNAME has incorrect length!\n");
-
-  if (DSCOMMENT_Length < 0)
-	  throw std::exception("\nType DSCOMMENT has incorrect length!\n");
-
+  catch (std::exception &ex)
+  {
+	  std::cout << ex.what();
+  }
 
 } // End of GetDSTypesFromDB()
 //---------------------------------------------------------------------------------
@@ -368,3 +404,337 @@ char * DSType::GetType()
 	return Name;
 } // End of GetType()
 //--------------------------------------------------------------------------------
+
+
+// GetFormulaText()
+///////////////////////////////////////////////////////////////////////////////////
+void FALoad::GetFormulaText(SQLHSTMT &hstmt, double &FormulaID, std::string &QueryStr)
+{
+	SQLCHAR SQLGetQueryStr[] = "select QueryStr\
+                                  from tQueryLine with (nolock index = XPKtQueryLine)\
+ 		                         where Type = 1\
+		                           and ContextID = ?";
+
+	SQLINTEGER
+		cbFormulaID = SQL_NTS,
+		cbQueryStr;
+
+	SQLCHAR SingleStr[256];
+
+
+	try
+	{
+		retcode = SQLBindParameter(
+			hstmt,
+			1,
+			SQL_PARAM_INPUT, 
+			SQL_C_DOUBLE,
+			SQL_DOUBLE,
+			10,
+			0,
+			&FormulaID,
+			sizeof(FormulaID),
+			&cbFormulaID);
+
+		if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
+		{
+			throw SQLException("GetFormulaText failed! SQLBindParameter(FormulaID)", retcode);
+		}
+
+		retcode = SQLExecDirect(
+			hstmt,
+			SQLGetQueryStr,
+			SQL_NTS);
+
+		if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
+		{
+			throw SQLException("GetFormulaText failed! SQLExecDirect(SQLGetQueryStr)", retcode);
+		}
+
+		if (retcode == SQL_SUCCESS)
+		{
+			while (TRUE)
+			{
+				retcode = SQLFetch(hstmt);
+				if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO)
+				{
+					throw SQLException("GetFormulaText failed! SQLFetch", retcode);
+				}
+
+				else if (retcode == SQL_SUCCESS)
+				{
+					// QueryStr										
+					retcode = SQLGetData(
+						hstmt,
+						1,
+						SQL_C_CHAR,
+						&SingleStr,
+						sizeof(SingleStr),
+						&cbQueryStr);
+
+					if (retcode != SQL_SUCCESS)
+						throw SQLException("GetFormulaText failed! SQLGetData(QueryStr)", retcode);
+
+					if (strcmp((const char *)SingleStr, "SQL:") != 0) // Ingore first row "SQL:" from formula's text
+					{
+						QueryStr += "\n";
+						QueryStr += (const char*)SingleStr;
+					}
+
+				}
+				else
+					break;
+			}
+		}
+
+		retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
+
+		if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
+			throw SQLException("GetFormulaText failed! SQLFreeStmt failed!", retcode);
+	}
+	catch (SQLException &ex)
+	{
+		ex.ShowMessage(hstmt);
+	}
+} // End of GetFormulaText()
+//---------------------------------------------------------------------------------
+
+
+// GetSetupParamsFromDB
+///////////////////////////////////////////////////////////////////////////////////
+void FALoad::GetSetupParamsFromDB()
+{
+	SQLCHAR SQLGetSetupFormulaParams[] = "select Number,\
+                                            CalcField,\
+                                            CalcProperty\
+                                       from tParam with (nolock index = XPKtParam)\
+ 		                              where FormulaID = ?";
+
+	SQLINTEGER
+		cbFormulaID = SQL_NTS,
+		cbNumber,
+		cbCalcField,
+		cbCalcProperty;
+
+	try
+	{
+		retcode = SQLBindParameter(
+			hstmt,
+			1,
+			SQL_PARAM_INPUT,
+			SQL_C_DOUBLE,
+			SQL_DOUBLE,
+			10,
+			0,
+			&SetupFormula,
+			sizeof(SetupFormula),
+			&cbFormulaID);
+
+		if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
+		{
+			throw SQLException("GetSetupParamsFromDB failed! SQLBindParameter(FormulaID)", retcode);
+		}
+
+		retcode = SQLExecDirect(
+			hstmt,
+			SQLGetSetupFormulaParams,
+			SQL_NTS);
+
+		if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
+		{
+			throw SQLException("GetSetupParamsFromDB failed! SQLExecDirect(SQLGetFormulaParams)", retcode);
+		}
+
+		if (retcode == SQL_SUCCESS)
+		{
+			while (TRUE)
+			{
+				retcode = SQLFetch(hstmt);
+				if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO)
+				{
+					throw SQLException("GetSetupParamsFromDB failed! SQLFetch", retcode);
+				}
+
+				else if (retcode == SQL_SUCCESS)
+				{
+					SetupFormulaParams.push_back(new Param);
+
+					// Number									
+					retcode = SQLGetData(
+						hstmt,
+						1,
+						SQL_C_DOUBLE,
+						&SetupFormulaParams.back()->Number,
+						sizeof(SetupFormulaParams.back()->Number),
+						&cbNumber);
+
+					if (retcode != SQL_SUCCESS)
+						throw SQLException("GetSetupParamsFromDB failed! SQLGetData(Number)", retcode);
+
+					// CalcField								
+					retcode = SQLGetData(
+						hstmt,
+						2,
+						SQL_C_CHAR,
+						&SetupFormulaParams.back()->CalcField,
+						sizeof(SetupFormulaParams.back()->CalcField),
+						&cbCalcField);
+
+					if (retcode != SQL_SUCCESS)
+						throw SQLException("GetSetupParamsFromDB failed! SQLGetData(CalcField)", retcode);
+
+					// CalcProperty
+					retcode = SQLGetData(
+						hstmt,
+						3,
+						SQL_C_ULONG,
+						&SetupFormulaParams.back()->CalcProperty,
+						sizeof(SetupFormulaParams.back()->CalcProperty),
+						&cbCalcProperty);
+
+					if (retcode != SQL_SUCCESS)
+						throw SQLException("GetSetupParamsFromDB failed! SQLGetData(CalcProperty)", retcode);
+			
+				}
+				else
+					break;
+			}
+		}
+
+		retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
+
+		if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
+			throw SQLException("GetSetupParamsFromDB failed! SQLFreeStmt failed!", retcode);
+	}
+	catch (SQLException &ex)
+	{
+		ex.ShowMessage(hstmt);
+	}
+
+} // End of GetSetupParamsFromDB
+
+
+  // GetLastParamsFromDB
+  ///////////////////////////////////////////////////////////////////////////////////
+void FALoad::GetLastParamsFromDB()
+{
+	SQLCHAR SQLGetLastFormulaParams[] = "select Number,\
+                                            CalcField,\
+                                            CalcProperty\
+                                       from tParam with (nolock index = XPKtParam)\
+ 		                              where FormulaID = ?";
+
+	SQLINTEGER
+		cbFormulaID = SQL_NTS,
+		cbNumber,
+		cbCalcField,
+		cbCalcProperty;
+
+	try
+	{
+		retcode = SQLBindParameter(
+			hstmt,
+			1,
+			SQL_PARAM_INPUT,
+			SQL_C_DOUBLE,
+			SQL_DOUBLE,
+			10,
+			0,
+			&LastFormula,
+			sizeof(LastFormula),
+			&cbFormulaID);
+
+		if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
+		{
+			throw SQLException("GetLastParamsFromDB failed! SQLBindParameter(FormulaID)", retcode);
+		}
+
+		retcode = SQLExecDirect(
+			hstmt,
+			SQLGetLastFormulaParams,
+			SQL_NTS);
+
+		if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
+		{
+			throw SQLException("GetLastParamsFromDB failed! SQLExecDirect(SQLGetFormulaParams)", retcode);
+		}
+
+		if (retcode == SQL_SUCCESS)
+		{
+			while (TRUE)
+			{
+				retcode = SQLFetch(hstmt);
+				if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO)
+				{
+					throw SQLException("GetLastParamsFromDB failed! SQLFetch", retcode);
+				}
+
+				else if (retcode == SQL_SUCCESS)
+				{
+					LastFormulaParams.push_back(new Param);
+
+					// Number									
+					retcode = SQLGetData(
+						hstmt,
+						1,
+						SQL_C_DOUBLE,
+						&LastFormulaParams.back()->Number,
+						sizeof(LastFormulaParams.back()->Number),
+						&cbNumber);
+
+					if (retcode != SQL_SUCCESS)
+						throw SQLException("GetLastParamsFromDB failed! SQLGetData(Number)", retcode);
+
+					// CalcField								
+					retcode = SQLGetData(
+						hstmt,
+						2,
+						SQL_C_CHAR,
+						&LastFormulaParams.back()->CalcField,
+						sizeof(LastFormulaParams.back()->CalcField),
+						&cbCalcField);
+
+					if (retcode != SQL_SUCCESS)
+						throw SQLException("GetLastParamsFromDB failed! SQLGetData(CalcField)", retcode);
+
+					// CalcProperty
+					retcode = SQLGetData(
+						hstmt,
+						3,
+						SQL_C_ULONG,
+						&LastFormulaParams.back()->CalcProperty,
+						sizeof(LastFormulaParams.back()->CalcProperty),
+						&cbCalcProperty);
+
+					if (retcode != SQL_SUCCESS)
+						throw SQLException("GetLastParamsFromDB failed! SQLGetData(CalcProperty)", retcode);
+
+				}
+				else
+					break;
+			}
+		}
+
+		retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
+
+		if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
+			throw SQLException("GetLastParamsFromDB failed! SQLFreeStmt failed!", retcode);
+	}
+	catch (SQLException &ex)
+	{
+		ex.ShowMessage(hstmt);
+	}
+
+} // End of GetLastParamsFromDB
+//--------------------------------------------------------------------------------
+
+
+// GetInfo
+///////////////////////////////////////////////////////////////////////////////////
+void GetInfo(std::string &CalcField, unsigned int &CalcProperty)
+{
+	
+
+
+} // End of GetInfo
+//---------------------------------------------------------------------------------

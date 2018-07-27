@@ -22,6 +22,7 @@ class SQLException : public std::exception
 	SQLCHAR SQLState[6], Msg[SQL_MAX_MESSAGE_LENGTH];
 	SQLINTEGER NativeError;
 	SQLSMALLINT MsgLen;
+
   public:
     SQLException(const char*, SQLRETURN);
     void ShowMessage(SQLHSTMT);
