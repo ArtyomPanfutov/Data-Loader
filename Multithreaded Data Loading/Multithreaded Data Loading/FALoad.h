@@ -43,6 +43,10 @@ class FALoad : public Connection
 		DSBRIEFNAME_Length,
 		DSCOMMENT_Length;
 
+	unsigned long int
+		TableColumns; // Количество столбцов в таблице из ParamList
+	
+
 	 double
 		ImportFileID, // Идентификатор загрузки
 		OEMToANSI,    // Флаг OEM\ANSI
@@ -51,11 +55,11 @@ class FALoad : public Connection
 		LastFormula;  // Идентификатор формулы постаброботки
 
 	 SQLCHAR
-		*LoadBrief,      // Сокращение загрузки
-		Delimiter[11],   // Символ разделитель
-		PathInput[256],  // Путь к файлу загрузки 
-		PathOutput[256], // Путь для сохранения файла
-		ParamList[256];  // Таблица для загрузки BCP
+		 *LoadBrief,      // Сокращение загрузки
+		 Delimiter[11],   // Символ разделитель
+		 PathInput[256],  // Путь к файлу загрузки 
+		 PathOutput[256], // Путь для сохранения файла
+		 ParamList[256];  // Таблица для загрузки BCP
 		//SetupFormulaStr[4000]; // Текст формулы предобработки
 	
     std::string
@@ -69,8 +73,12 @@ class FALoad : public Connection
     void GetLoadInfo();           // Начитка информации о загрузке из БД
 	void GetFormulaText(SQLHSTMT &, double &, std::string &); // Вытащить текст формулы из БД
     void GetDSTypesFromDB();      // Начитать типы данных Диасофт
-	void GetSetupParamsFromDB(); 
-	void GetLastParamsFromDB();
+	void GetSetupParamsFromDB();  // Начитать параметры формулы предобработки
+	void GetLastParamsFromDB();   // Начитать параметры формулы постобработки
+	void GetTableColumnsFromDB(); // Получить количество столбцов таблицы из ParamList
+	
+
+	void StartBCP(std::string &, std::string &, std::string &); // Загрузить данные в таблица по BCP из файла
 
 	
 };

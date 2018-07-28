@@ -100,6 +100,10 @@ int Connection::DriverConnectAndAllocHandle()
 {
 	try
 	{ 
+	  retcode = SQLSetConnectAttr(hdbc, SQL_COPT_SS_BCP, (void *)SQL_BCP_ON, SQL_IS_INTEGER);
+	  if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
+			throw SQLException("DriverConnectAndAllocHandle() failed! SQLSetConnectAttr", retcode);
+
 	  // Set login timeout to 5 seconds  
 	  SQLSetConnectAttr(hdbc, SQL_LOGIN_TIMEOUT, (SQLPOINTER)5, 0);
 
@@ -236,3 +240,65 @@ int Connection::TestConnection(const short int& display)
 } // End of TestConnection()
 //--------------------------------------------------------------------
 
+// GetSPID
+//////////////////////////////////////////////////////////////////////
+void Connection::GetSPID()
+{
+	SQLCHAR 
+		SQLGetSPID[] = "select @@spid";
+
+	SQLINTEGER
+		cbSPID;
+
+	try
+	{
+		retcode = SQLExecDirect(
+			hstmt,
+			SQLGetSPID,
+			SQL_NTS);
+
+		if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
+			throw SQLException("GetSPID failed! SQLExecDirect(SQLGetSPID)", retcode);
+
+
+		if (retcode == SQL_SUCCESS)
+		{
+			while (TRUE)
+			{
+				retcode = SQLFetch(hstmt);
+				if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO)
+				{
+					throw SQLException("GetSPID failed! SQLFetch", retcode);
+				}
+
+				else if (retcode == SQL_SUCCESS)
+				{
+					// spid									
+					retcode = SQLGetData(
+						hstmt,
+						1,
+						SQL_C_ULONG,
+						&SPID,
+						0,
+						&cbSPID);
+
+					if (retcode != SQL_SUCCESS)
+						throw SQLException("GetSPID failed! SQLGetData(spid)", retcode);
+				}
+				else
+					break;
+			}
+		}
+
+		retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
+
+		if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
+			throw SQLException("GetSPID failed! SQLFreeStmt failed!", retcode);
+
+	}
+	catch (SQLException &ex)
+	{
+		ex.ShowMessage(hstmt);
+	}
+} // End of GetSPID
+//-------------------------------------------------------------------

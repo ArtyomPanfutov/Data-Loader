@@ -6,6 +6,9 @@
 #include "FALoad.h"
 #include "SQLException.h"
 #include <string>
+#include "file.h"
+#include <fstream>
+#include <vector>
 
 /***********************************************************************
 *************** Definiton of methods. Class FALoader *******************
@@ -19,28 +22,33 @@ FALoad::FALoad() : Connection()
 // ---------------------------------------------------------------------
 
 
-// Constructor FALoader()
+// Destructor FALoader()
 ////////////////////////////////////////////////////////////////////////
 FALoad::~FALoad(void) 
 {
-	// DSTypes
-	for (auto i = 0; i < DSTypes.size(); i++)
-		delete (DSTypes[i]);
+
+	for (std::vector< DSType *>::iterator it = DSTypes.begin(); it != DSTypes.end(); ++it)
+	{
+		delete *it;
+	}
 	DSTypes.clear();
 
-	// SetupFormulaParams
-	for (auto i = 0; i < SetupFormulaParams.size(); i++)
-		delete (SetupFormulaParams[i]);
+	for (std::vector< Param *>::iterator it = SetupFormulaParams.begin(); it != SetupFormulaParams.end(); ++it)
+	{
+		delete *it;
+	}
 	SetupFormulaParams.clear();
 
-	// LastFormulaParams
-	for (auto i = 0; i < LastFormulaParams.size(); i++)
-		delete (LastFormulaParams[i]);
+
+	for (std::vector< Param *>::iterator it = LastFormulaParams.begin(); it != LastFormulaParams.end(); ++it)
+	{
+		delete *it;
+	}
 	LastFormulaParams.clear();
 
 	
 }
-// End of constructor FALoader()
+// End of destructor FALoader()
 // ---------------------------------------------------------------------
 
 // GetLoadInfo()
@@ -48,7 +56,7 @@ FALoad::~FALoad(void)
 void FALoad::GetLoadInfo()
 {
 	SQLCHAR SQLGetLoadInfo[] = "select ImportFileID,\
-		                               Delimiter,\
+		                               ltrim(rtrim(Delimiter)),\
                                        PathInput,\
                                        PathOutput,\
                                        ParamList,\
@@ -231,6 +239,8 @@ void FALoad::GetLoadInfo()
 		std::cout << "\n SetupFormulaStr:\n" << SetupFormulaStr;
 		std::cout << "\n SetupFormulaStr:\n" << LastFormulaStr;
 
+		GetTableColumnsFromDB();
+		std::cout << "\n TableColumns: " << TableColumns;
 	}
 	catch (SQLException &ex)
 	{
@@ -738,3 +748,150 @@ void GetInfo(std::string &CalcField, unsigned int &CalcProperty)
 
 } // End of GetInfo
 //---------------------------------------------------------------------------------
+
+
+// GetTableColumnsFromDB()
+///////////////////////////////////////////////////////////////////////////////////
+void FALoad::GetTableColumnsFromDB()
+{
+	SQLCHAR SQLGetColumns[] = "select count(*)\
+                                 from syscolumns with (nolock)\
+                                where id = object_id(?)";
+
+
+	SQLINTEGER
+		cbParamList = SQL_NTS,
+		cbTableColumns;
+
+	try
+	{
+		retcode = SQLBindParameter(
+			hstmt,
+			1,
+			SQL_PARAM_INPUT,
+			SQL_C_CHAR,
+			SQL_VARCHAR,
+			256,
+			0,
+			ParamList,
+			sizeof(ParamList),
+			&cbParamList);
+
+		if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
+			throw SQLException("GetTableColumnsFromDB failed! SQLBindParameter(ParamList)", retcode);
+	
+
+		retcode = SQLExecDirect(
+			hstmt,
+			SQLGetColumns,
+			SQL_NTS);
+
+		if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
+			throw SQLException("GetTableColumnsFromDB failed! SQLExecDirect(SQLGetColumns)", retcode);
+		
+
+		if (retcode == SQL_SUCCESS)
+		{
+			while (TRUE)
+			{
+				retcode = SQLFetch(hstmt);
+				if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO)
+				{
+					throw SQLException("GetTableColumnsFromDB failed! SQLFetch", retcode);
+				}
+
+				else if (retcode == SQL_SUCCESS)
+				{
+					// Count									
+					retcode = SQLGetData(
+						hstmt,
+						1,
+						SQL_C_ULONG,
+						&TableColumns,
+						0,
+						&cbTableColumns);
+
+					if (retcode != SQL_SUCCESS)
+						throw SQLException("GetTableColumnsFromDB failed! SQLGetData(Number)", retcode);
+				}
+				else
+					break;
+			}
+		}
+
+		retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
+
+		if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
+			throw SQLException("GetTableColumnsFromDB failed! SQLFreeStmt failed!", retcode);
+		
+	}
+	catch (SQLException &ex)
+	{
+		ex.ShowMessage(hstmt);
+	}
+
+} // End of GetTableColumnsFromDB
+  //---------------------------------------------------------------------------------
+
+
+
+// StartBCP
+/////////////////////////////////////////////////////////////////////////////////////
+void FALoad::StartBCP(std::string &filename, std::string &fieldterm_str, std::string &rowterm_str)
+{
+	LPCBYTE
+		termfield = reinterpret_cast<LPCBYTE>(fieldterm_str.c_str()),
+	termrow = reinterpret_cast<LPCBYTE>(rowterm_str.c_str());
+
+	SDWORD cRows;
+
+
+	try
+	{
+		// Initialize the bulk copy.  
+		retcode = bcp_init(hdbc, reinterpret_cast<LPCSTR>(ParamList), filename.c_str(), "ERRORBCP.txt", DB_IN);
+		if (retcode != SUCCEED)
+			throw SQLException("StartBCP failed! bcp_init", retcode);
+
+
+		// Set keep nulls
+		retcode = bcp_control(hdbc, BCPKEEPNULLS, (void*)TRUE);
+		if (retcode == FAIL)
+			throw SQLException("StartBCP failed! bcp_control(bcpkeepnulls)", retcode);
+
+
+		// Set code page
+		retcode = bcp_control(hdbc, BCPFILECP, (void*)BCPFILECP_ACP);
+		if (retcode == FAIL)
+			throw SQLException("StartBCP failed! bcp_control(bcpfilecp)", retcode);
+
+		retcode = bcp_columns(hdbc, TableColumns - 2);
+		if (retcode == FAIL)
+			throw SQLException("StartBCP failed! bcp_columns", retcode);
+
+
+		//std::cout << sizeof(term1str) << " " << sizeof(term2str);
+
+		for (unsigned long int i = 1; i <= TableColumns - 2; i++)
+		{
+			if (i != TableColumns - 2)
+				bcp_colfmt(hdbc, i, NULL, NULL, NULL, termfield, 1, i + 2);
+			else
+				bcp_colfmt(hdbc, i, NULL, NULL, NULL, termrow, 1, i + 2);
+		}
+
+
+		// Execute the bulk copy.  
+		retcode = bcp_exec(hdbc, &cRows);
+		if ((retcode != SUCCEED))
+			throw SQLException("StartBCP failed! bcp_exec", retcode);
+
+		std::cout << "\n rows copied " << cRows;
+	}
+	catch (SQLException &ex)
+	{
+		ex.ShowMessage(hstmt);
+	}
+
+} // End of StartBCP
+//-----------------------------------------------------------------------------------

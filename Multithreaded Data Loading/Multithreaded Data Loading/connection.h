@@ -34,6 +34,8 @@ class Connection
 
 	SQLSMALLINT OutConnStrLen;
 
+	int SPID;
+
 	HWND desktopHandle = GetDesktopWindow();   // desktop's window handle  
 
   public:
@@ -43,6 +45,7 @@ class Connection
 	  int TestConnection(const short int&);
 	  void CleanUp();  
 	  void ShowErrCode(SQLRETURN&);
+	  void GetSPID();
 	  //void SQLGetDiagMsg();
 	  
 };
