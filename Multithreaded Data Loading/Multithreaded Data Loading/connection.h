@@ -34,11 +34,12 @@ class Connection
 
 	SQLSMALLINT OutConnStrLen;
 
-	int SPID;
+	
 
 	HWND desktopHandle = GetDesktopWindow();   // desktop's window handle  
 
   public:
+	  int SPID;
 	  Connection();
 	  ~Connection();
 	  int DriverConnectAndAllocHandle();

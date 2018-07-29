@@ -10,9 +10,11 @@
 #include "constant.h"
 #include "FALoad.h"
 #include "file.h"
+#include "AsyncLoad.h"
 #include <sql.h>
 #include <sqlext.h>
 #include <odbcss.h>
+#include <vector>
 
 int main()
 {
@@ -43,6 +45,8 @@ int main()
 	a.GetSetupParamsFromDB();
 	a.GetLastParamsFromDB();
 	
+	a.GetSPID();
+
 	//a.ShowLoadBrief();
 	std::string filename = "institution.txt";
 	std::string inputpath = "d:";
@@ -59,7 +63,14 @@ int main()
 	
 	int offset = 3;
 
-	t.preparefile(a.TableColumns, fieldterm, rowterm, offset);
+//	t.preparefile(a.TableColumns, fieldterm, rowterm, offset);
+	std::vector <FALoad *> Fa;
+
+
+
+	Fa.push_back(&a);
+
+	t.preparefile(Fa, fieldterm, rowterm);
 
 	a.StartBCP(t.outputfile, fieldterm, rowterm);
 

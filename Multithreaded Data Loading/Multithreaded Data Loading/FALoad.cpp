@@ -841,7 +841,7 @@ void FALoad::StartBCP(std::string &filename, std::string &fieldterm_str, std::st
 {
 	LPCBYTE
 		termfield = reinterpret_cast<LPCBYTE>(fieldterm_str.c_str()),
-	termrow = reinterpret_cast<LPCBYTE>(rowterm_str.c_str());
+	    termrow = reinterpret_cast<LPCBYTE>(rowterm_str.c_str());
 
 	SDWORD cRows;
 
@@ -861,23 +861,27 @@ void FALoad::StartBCP(std::string &filename, std::string &fieldterm_str, std::st
 
 
 		// Set code page
-		retcode = bcp_control(hdbc, BCPFILECP, (void*)BCPFILECP_ACP);
+		retcode = bcp_control(hdbc, BCPFILECP, (void*)BCPFILECP_RAW);
 		if (retcode == FAIL)
 			throw SQLException("StartBCP failed! bcp_control(bcpfilecp)", retcode);
 
-		retcode = bcp_columns(hdbc, TableColumns - 2);
+		retcode = bcp_columns(hdbc, TableColumns);
 		if (retcode == FAIL)
 			throw SQLException("StartBCP failed! bcp_columns", retcode);
-
-
-		//std::cout << sizeof(term1str) << " " << sizeof(term2str);
-
-		for (unsigned long int i = 1; i <= TableColumns - 2; i++)
+			
+		
+		for (unsigned long int i = 1; i <= TableColumns; i++)
 		{
-			if (i != TableColumns - 2)
-				bcp_colfmt(hdbc, i, NULL, NULL, NULL, termfield, 1, i + 2);
+			
+			if ((i != TableColumns) && (i != 1) && (i != 2))
+				bcp_colfmt(hdbc, i, NULL, NULL, NULL, termfield, 1, i);
+			else if (i == 1)
+				bcp_colfmt(hdbc, i, SQLVARCHAR, NULL, SQL_VARLEN_DATA, termfield, 1, i);
+			else if (i == 2)
+				bcp_colfmt(hdbc, i, SQLVARCHAR, NULL, SQL_VARLEN_DATA, termfield, 1, i);
 			else
-				bcp_colfmt(hdbc, i, NULL, NULL, NULL, termrow, 1, i + 2);
+				bcp_colfmt(hdbc, i, SQLVARCHAR, NULL, SQL_VARLEN_DATA, termrow, 2, i);
+
 		}
 
 

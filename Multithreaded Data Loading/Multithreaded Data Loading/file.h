@@ -6,7 +6,8 @@
 
 #include "Connection.h"
 #include <string>
-
+#include "FALoad.h"
+#include <vector>
 class file
 {
 public:
@@ -18,7 +19,7 @@ public:
 	file(std::string &, std::string &, std::string &);
 	~file();
 
-	void preparefile(unsigned long int &, std::string &, std::string &, int &);
+	void preparefile(std::vector <FALoad *>, std::string &, std::string &);
 };
 
 

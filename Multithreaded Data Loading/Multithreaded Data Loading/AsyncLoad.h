@@ -9,6 +9,7 @@
 #include "SQLException.h"
 #include "constant.h"
 #include <vector>
+#include "file.h"
 #include "connection.h"
 
 /////////////////////////////////////////////////////////
@@ -16,6 +17,9 @@ class AsyncLoad : Connection
 {
   public:
 	  std::vector <FALoad *> FALoads;
+	  file inputfile;
+
+	  
 
 	  
 
