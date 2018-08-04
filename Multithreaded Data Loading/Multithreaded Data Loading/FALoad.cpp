@@ -25,24 +25,42 @@ FALoad::FALoad() : Connection()
 // Destructor FALoader()
 ////////////////////////////////////////////////////////////////////////
 FALoad::~FALoad(void) 
-{
+{	
+
 
 	for (std::vector< DSType *>::iterator it = DSTypes.begin(); it != DSTypes.end(); ++it)
 	{
 		delete *it;
+		
 	}
 	DSTypes.clear();
 
 	for (std::vector< Param *>::iterator it = SetupFormulaParams.begin(); it != SetupFormulaParams.end(); ++it)
 	{
 		delete *it;
+		
 	}
 	SetupFormulaParams.clear();
 
 
+	for (std::vector< char *>::iterator it = Columns.begin(); it != Columns.end(); ++it)
+	{
+		delete *it;
+
+	}
+	Columns.clear();
+
+	for (std::vector<int *>::iterator it = ColumnsLen.begin(); it != ColumnsLen.end(); ++it)
+	{
+		delete *it;
+
+	}
+	ColumnsLen.clear();
+
 	for (std::vector< Param *>::iterator it = LastFormulaParams.begin(); it != LastFormulaParams.end(); ++it)
 	{
 		delete *it;
+		
 	}
 	LastFormulaParams.clear();
 
@@ -241,6 +259,11 @@ void FALoad::GetLoadInfo()
 
 		GetTableColumnsFromDB();
 		std::cout << "\n TableColumns: " << TableColumns;
+		
+		for (int i = 0; i < ColumnsLen.size(); i++)
+		{
+			std::cout << "\n ColumnLen " << i << " " << *ColumnsLen[i];
+		}
 	}
 	catch (SQLException &ex)
 	{
@@ -758,13 +781,20 @@ void FALoad::GetTableColumnsFromDB()
                                  from syscolumns with (nolock)\
                                 where id = object_id(?)";
 
+	SQLCHAR SQLGetLengthColumn[] = "\
+		select c.prec\
+          from syscolumns c with (nolock)\
+         where c.id = object_id(?)\
+         order by c.colorder asc";
 
 	SQLINTEGER
 		cbParamList = SQL_NTS,
-		cbTableColumns;
+		cbTableColumns,
+		cbColumnLength;
 
 	try
 	{
+		// 1. Get count of columns
 		retcode = SQLBindParameter(
 			hstmt,
 			1,
@@ -823,6 +853,72 @@ void FALoad::GetTableColumnsFromDB()
 
 		if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
 			throw SQLException("GetTableColumnsFromDB failed! SQLFreeStmt failed!", retcode);
+
+
+		// 2. Get length for each column
+		retcode = SQLBindParameter(
+			hstmt,
+			1,
+			SQL_PARAM_INPUT,
+			SQL_C_CHAR,
+			SQL_VARCHAR,
+			256,
+			0,
+			ParamList,
+			sizeof(ParamList),
+			&cbParamList);
+
+		if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
+			throw SQLException("GetTableColumnsFromDB failed! SQLBindParameter(ParamList)", retcode);
+
+
+		retcode = SQLExecDirect(
+			hstmt,
+			SQLGetLengthColumn,
+			SQL_NTS);
+
+		if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
+			throw SQLException("GetTableColumnsFromDB failed! SQLExecDirect(SQLGetLengthColumn)", retcode);
+
+		if (retcode == SQL_SUCCESS)
+		{    
+			int i = 0;
+			Columns.erase(Columns.cbegin(), Columns.cend());
+			while (TRUE)
+			{
+				ColumnsLen.push_back(new int);
+
+				retcode = SQLFetch(hstmt);
+				if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO)
+				{
+					throw SQLException("GetTableColumnsFromDB failed! SQLFetch", retcode);
+				}
+
+				else if (retcode == SQL_SUCCESS)
+				{
+					// Length
+					retcode = SQLGetData(
+						hstmt,
+						1,
+						SQL_C_ULONG,
+						ColumnsLen[i],
+						0,
+						&cbTableColumns);
+
+					if (retcode != SQL_SUCCESS)
+						throw SQLException("GetTableColumnsFromDB failed! SQLGetData(Length)", retcode);
+
+					i++;
+				}
+				else
+					break;
+			}
+		}
+
+		retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
+
+		if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
+			throw SQLException("GetTableColumnsFromDB failed! SQLFreeStmt failed!", retcode);
 		
 	}
 	catch (SQLException &ex)
@@ -837,65 +933,135 @@ void FALoad::GetTableColumnsFromDB()
 
 // StartBCP
 /////////////////////////////////////////////////////////////////////////////////////
-void FALoad::StartBCP(std::string &filename, std::string &fieldterm_str, std::string &rowterm_str)
+void FALoad::StartBCP(std::string &filename, std::string &fieldterm_str, std::string &rowterm_str, unsigned int &firstrow, unsigned int &lastrow, std::vector<std::string> &file_str)
 {
-	LPCBYTE
-		termfield = reinterpret_cast<LPCBYTE>(fieldterm_str.c_str()),
-	    termrow = reinterpret_cast<LPCBYTE>(rowterm_str.c_str());
+	int cbCol = 0;
 
-	SDWORD cRows;
+	std::ifstream file(filename);
+	std::string cur_str;
 
+	int it = 0,
+		cur_pos = 0,
+		last_pos = 0,
+		str_num = 1;
 
+	char *chColumn;  
+	char terminator = '\0';
+
+	DBINT cRowsDone = 0;
+
+	RETCODE SendRet;
+
+	// Create objects for each column.
+	for (int i = 0; i < TableColumns; i++)
+       Columns.push_back(new char[*ColumnsLen[i]]);
+
+	// Set SPID Column. Temp table always has the first column "SPID".
+	sprintf_s(Columns[0], *ColumnsLen[0], "%d", SPID);
+	
 	try
 	{
 		// Initialize the bulk copy.  
-		retcode = bcp_init(hdbc, reinterpret_cast<LPCSTR>(ParamList), filename.c_str(), "ERRORBCP.txt", DB_IN);
+		retcode = bcp_init(hdbc, (const char*)ParamList, NULL, "bcp_log.txt", DB_IN);
 		if (retcode != SUCCEED)
 			throw SQLException("StartBCP failed! bcp_init", retcode);
 
+		// Bind variables to table columns.
 
-		// Set keep nulls
-		retcode = bcp_control(hdbc, BCPKEEPNULLS, (void*)TRUE);
-		if (retcode == FAIL)
-			throw SQLException("StartBCP failed! bcp_control(bcpkeepnulls)", retcode);
-
-
-		// Set code page
-		retcode = bcp_control(hdbc, BCPFILECP, (void*)BCPFILECP_RAW);
-		if (retcode == FAIL)
-			throw SQLException("StartBCP failed! bcp_control(bcpfilecp)", retcode);
-
-		retcode = bcp_columns(hdbc, TableColumns);
-		if (retcode == FAIL)
-			throw SQLException("StartBCP failed! bcp_columns", retcode);
-			
-		
-		for (unsigned long int i = 1; i <= TableColumns; i++)
+		for (int i = 0; i < TableColumns; i++)
 		{
-			
-			if ((i != TableColumns) && (i != 1) && (i != 2))
-				bcp_colfmt(hdbc, i, NULL, NULL, NULL, termfield, 1, i);
-			else if (i == 1)
-				bcp_colfmt(hdbc, i, SQLVARCHAR, NULL, SQL_VARLEN_DATA, termfield, 1, i);
-			else if (i == 2)
-				bcp_colfmt(hdbc, i, SQLVARCHAR, NULL, SQL_VARLEN_DATA, termfield, 1, i);
-			else
-				bcp_colfmt(hdbc, i, SQLVARCHAR, NULL, SQL_VARLEN_DATA, termrow, 2, i);
+			retcode = bcp_bind(
+				hdbc,
+				(BYTE *)Columns[i],
+				NULL,
+				SQL_VARLEN_DATA,
+				(UCHAR *)&terminator,
+				1,
+				SQLCHARACTER,
+				i + 1);
 
+			if ((retcode != SUCCEED))
+				throw SQLException("StartBCP failed! bcp_bind", retcode);
 		}
 
 
-		// Execute the bulk copy.  
-		retcode = bcp_exec(hdbc, &cRows);
-		if ((retcode != SUCCEED))
-			throw SQLException("StartBCP failed! bcp_exec", retcode);
+		for (int i = firstrow; i <= lastrow; i++)
+		{
+			cur_str = file_str[i];
 
-		std::cout << "\n rows copied " << cRows;
+			// Set num column.
+			sprintf_s(Columns[1], *ColumnsLen[1], "%d", str_num);
+
+			std::cout << "\n Col " << 0 << " " << Columns[0];
+			std::cout << "\n Col " << 1 << " " << Columns[1];
+
+			it = 2, cur_pos = 0, last_pos = 0;
+
+			if (it < TableColumns - 1)
+			{
+				while ((cur_pos = cur_str.find(fieldterm_str, cur_pos)) != std::string::npos)
+				{
+					if (it > Columns.size() - 1)
+						break;
+					else
+					{
+						strcpy_s(Columns[it], *ColumnsLen[it], (cur_str.substr(last_pos, cur_pos - last_pos)).c_str());
+
+						std::cout << "\n Col " << it << " " << Columns[it];
+						last_pos = cur_pos + 1;
+						cur_pos++;
+						it++;
+					}
+				}
+			}
+			if (it == TableColumns - 1)
+			{
+				cur_pos = cur_str.find(rowterm_str, cur_pos);
+				strcpy_s(Columns[it], *ColumnsLen[it], (cur_str.substr(last_pos, cur_pos - last_pos)).c_str());
+
+				std::cout << "\n Col " << it << " " << Columns[it];
+				last_pos = cur_pos - 1;
+				it++;
+			}
+
+			// For those case when not all columns exists in the input file.
+			if (it < TableColumns - 1)
+			{
+				while (it <= TableColumns - 1)
+				{
+					strcpy_s(Columns[it], *ColumnsLen[it], " ");
+					std::cout << "\n Col " << it << " " << Columns[it];
+					it++;
+				}
+
+			}
+
+			// And send this row to the table.
+			SendRet = bcp_sendrow(hdbc);
+			if (SendRet != SUCCEED)
+			{
+				std::cout << "\n bcp_sendrow failed! retcode: " << SendRet;
+			}
+
+			str_num++;
+		}
+
+		// Signal the end of the bulk copy operation.  
+		cRowsDone = bcp_done(hdbc);
+		if ((cRowsDone == -1)) 
+		{
+			printf("bcp_done(hdbc) Failed\n\n");
+			
+		}
+
+		std::cout << "\n rows copied: " << cRowsDone;
+
+		file.close();
 	}
 	catch (SQLException &ex)
 	{
 		ex.ShowMessage(hstmt);
 	}
-
+	
 } // End of StartBCP
 //-----------------------------------------------------------------------------------

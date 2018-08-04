@@ -67,14 +67,19 @@ int main()
 	std::vector <FALoad *> Fa;
 
 
-
+	
 	Fa.push_back(&a);
 
-	t.preparefile(Fa, fieldterm, rowterm);
-
-	a.StartBCP(t.outputfile, fieldterm, rowterm);
-
 	a.GetSPID();
+
+	t.PutStrIntoVector();
+
+	unsigned int firstrow = 0;
+	unsigned int lastrow = 5;
+
+	a.StartBCP(filename, fieldterm, rowterm, firstrow, lastrow, t.text_str);
+
+	
 	system("pause");
 
 	return 0;

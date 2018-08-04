@@ -16,10 +16,13 @@ public:
 	std::string savedfile;
 	std::string inputpath;
 	std::string savepath;
+	std::vector<std::string> text_str;
 	file(std::string &, std::string &, std::string &);
 	~file();
 
 	void preparefile(std::vector <FALoad *>, std::string &, std::string &);
+
+	void PutStrIntoVector();
 };
 
 

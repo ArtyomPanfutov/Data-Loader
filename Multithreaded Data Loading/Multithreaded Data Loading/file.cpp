@@ -25,7 +25,10 @@ file::file(std::string &filename, std::string &inputpath, std::string &savepath)
 // Destructor 
 ////////////////////////////////////////////////////////////////
 file::~file()
-{ }
+{
+	
+	text_str.clear();
+}
 // End of destructor
 ////////////////////////////////////////////////////////////////
 
@@ -130,3 +133,21 @@ void file::preparefile( std::vector< FALoad *> Loadvec, std::string &fieldterm, 
 } // End of preparefile()
 //------------------------------------------------------------
 
+// PutStrIntoVector
+//////////////////////////////////////////////////////////////
+void file::PutStrIntoVector()
+{
+  std::ifstream file(this->inputfile);
+
+  std::string cur_str;
+
+  text_str.erase(text_str.cbegin(), text_str.cend());
+
+  while (getline(file, cur_str))
+  {
+	  text_str.push_back(cur_str);
+  }
+
+  file.close();
+} // End of PutStrIntoVector
+//------------------------------------------------------------

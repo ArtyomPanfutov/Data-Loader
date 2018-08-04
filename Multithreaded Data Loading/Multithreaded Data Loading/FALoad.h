@@ -31,6 +31,7 @@ struct Param
 };
 
 
+
 /////////////////////////////////////////////////////////////
 class FALoad : public Connection
 {
@@ -38,6 +39,8 @@ class FALoad : public Connection
 	std::vector <DSType *> DSTypes;           // Для хранения типов данных из БД Диасофт
 	std::vector <Param *> SetupFormulaParams; // Параметры формулы предобработки
 	std::vector <Param *> LastFormulaParams;  // Параметры формулы постобработки
+	std::vector <char *> Columns;             // Данные для каждого столбца таблицы записывать сюда
+	std::vector <int *> ColumnsLen;           // Длина столбцов 
 
 	SQLINTEGER
 		DSBRIEFNAME_Length,
@@ -47,7 +50,7 @@ class FALoad : public Connection
 		TableColumns; // Количество столбцов в таблице из ParamList
 	
 
-	 double
+	double
 		ImportFileID, // Идентификатор загрузки
 		OEMToANSI,    // Флаг OEM\ANSI
 		ContextID,    // Идентификатор формулы с параметрами
@@ -75,10 +78,10 @@ class FALoad : public Connection
     void GetDSTypesFromDB();      // Начитать типы данных Диасофт
 	void GetSetupParamsFromDB();  // Начитать параметры формулы предобработки
 	void GetLastParamsFromDB();   // Начитать параметры формулы постобработки
-	void GetTableColumnsFromDB(); // Получить количество столбцов таблицы из ParamList
+	void GetTableColumnsFromDB(); // Получить количество столбцов таблицы из ParamList + информация о длине каждого столбца в Columns
 	
 
-	void StartBCP(std::string &, std::string &, std::string &); // Загрузить данные в таблица по BCP из файла
+	void StartBCP(std::string &, std::string &, std::string &, unsigned int &, unsigned int &, std::vector<std::string> &); // Загрузить данные в таблица по BCP из файла
 
 	
 };
