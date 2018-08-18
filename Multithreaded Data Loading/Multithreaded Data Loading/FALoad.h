@@ -24,9 +24,9 @@ struct DSType
 struct Param
 {
 	double Number;             // Номер параметра
-    std::string CalcField;     // Имя параметра
+    char CalcField[30];     // Имя параметра
 	unsigned int CalcProperty; // 0 - числовой 1 - строковый
-
+	std::string Value;         // Значение параметра
 	double GetInfo(std::string &, unsigned int &); // Возвращает номер параметра + информацию по ссылкам
 };
 
@@ -47,8 +47,9 @@ class FALoad : public Connection
 		DSCOMMENT_Length;
 
 	unsigned long int
-		TableColumns; // Количество столбцов в таблице из ParamList
-	
+		TableColumns, // Количество столбцов в таблице из ParamList
+		FirstRow,     // Номер первой строки из диапазона, которая будет обработана(включительно)
+		LastRow;      // Номер последенй строки из диапазона, которая будет обработана(включительно)
 
 	double
 		ImportFileID, // Идентификатор загрузки
@@ -65,11 +66,13 @@ class FALoad : public Connection
 		 ParamList[256];  // Таблица для загрузки BCP
 		//SetupFormulaStr[4000]; // Текст формулы предобработки
 	
-    std::string
-		SetupFormulaStr, // Текст формулы предобработки
-		LastFormulaStr;  // Текст формулы постобработки
+	 std::string
+		 SetupFormulaStr, // Текст формулы предобработки
+		 LastFormulaStr,  // Текст формулы постобработки
+		 FileName;        // Имя загружаемое файла
+
 	
-    FALoad();
+    FALoad(std::string &);
 	~FALoad();
 	void SetLoadBrief(SQLCHAR &); // Записать сокращение загрузки
 	void ShowLoadBrief();         // Вывести на экран сокращение загрузки
@@ -79,11 +82,10 @@ class FALoad : public Connection
 	void GetSetupParamsFromDB();  // Начитать параметры формулы предобработки
 	void GetLastParamsFromDB();   // Начитать параметры формулы постобработки
 	void GetTableColumnsFromDB(); // Получить количество столбцов таблицы из ParamList + информация о длине каждого столбца в Columns
-	
-
-	void StartBCP(std::string &, std::string &, std::string &, unsigned int &, unsigned int &, std::vector<std::string> &); // Загрузить данные в таблица по BCP из файла
-
-	
+	void PrepareFormula(std::string &, std::vector<Param *> &); // Обработка текста формулы (подстановка параметров)
+	void ExecuteFormula(std::string &); // Запуск запроса с текстом формулы
+	void StartBCP(std::string &, std::string &, unsigned long int&, unsigned long int&, std::vector<std::string> &); // Загрузить данные в таблица по BCP из файла
+	void SetProcessingRange(unsigned long &, unsigned long &); // Установить границы диапазона обрабатываемых строк 
 };
 
 

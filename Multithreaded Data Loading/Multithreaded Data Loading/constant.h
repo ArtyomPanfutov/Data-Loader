@@ -5,6 +5,8 @@
 // modified:
 // author: Artyom Panfutov
 
+#include <string>
+
 const short int DO_NOT_DISPLAY_INFO = 0; // The setting for disable displaying text on the screen 
 const short int DISPLAY_INFO = 1; // The setting for enable displaying text on the screen 
 
@@ -14,5 +16,12 @@ const short int SQL_INSTANCE_MAX_LENGTH = 15;
 const short int SQL_DB_MAX_LENGTH = 128;
 const short int SQL_PASSWORD_MAX_LENGTH = 128;
 const short int SQL_DRIVER_MAX_LENGTH = 128;
+
+
+// Parameters for config.ini
+const std::string SERVERNAME_TAG = "SERVERNAME";
+const std::string DATABASE_TAG = "DATABASE";
+const std::string DRIVER_TAG = "DRIVER";
+
 
 #endif // CONSTANT_H

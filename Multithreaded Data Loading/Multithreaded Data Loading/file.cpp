@@ -39,12 +39,6 @@ file::~file()
 void file::preparefile( std::vector< FALoad *> Loadvec, std::string &fieldterm, std::string &rowterm)
 {
 
-	//std::string term1str = (const char *)Delimiter;
-	//std::string term2str = "\r\n";
-
-	//LPCBYTE term1 = reinterpret_cast<LPCBYTE>(Delimiter);
-	//LPCBYTE term2 = reinterpret_cast<LPCBYTE>("\r\n");
-
 	unsigned long
 		batch = 0,
 		strings_in_file = 0,

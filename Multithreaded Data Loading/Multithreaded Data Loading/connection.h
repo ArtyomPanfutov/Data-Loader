@@ -33,9 +33,7 @@ class Connection
 	SQLCHAR OutConnStr[255];
 
 	SQLSMALLINT OutConnStrLen;
-
 	
-
 	HWND desktopHandle = GetDesktopWindow();   // desktop's window handle  
 
   public:
@@ -47,7 +45,7 @@ class Connection
 	  void CleanUp();  
 	  void ShowErrCode(SQLRETURN&);
 	  void GetSPID();
-	  //void SQLGetDiagMsg();
+	  SQLHSTMT GetHSTMT(); 
 	  
 };
 ////////////////////////////////////////////////////////////////////////

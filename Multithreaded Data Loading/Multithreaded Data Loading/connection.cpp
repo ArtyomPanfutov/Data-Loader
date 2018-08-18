@@ -16,7 +16,7 @@
 
 
 /***********************************************************************
-************* Definiton of functions. Class Connection *****************
+************* Definiton of methods. Class Connection *******************
 ***********************************************************************/
 
 
@@ -77,17 +77,20 @@ Connection::~Connection()
 
 void Connection::CleanUp()
 {
-	if (hdbc != SQL_NULL_HDBC)
+	// Free handles and disconnect.
+
+	if (hstmt)
+		SQLFreeHandle(SQL_HANDLE_STMT, hstmt);
+	
+	if (hdbc)
 	{
 		SQLDisconnect(hdbc);
 		SQLFreeHandle(SQL_HANDLE_DBC, hdbc);
 	}
 
-	if (henv != SQL_NULL_HENV)
+	if (henv)
 		SQLFreeHandle(SQL_HANDLE_ENV, henv);
 
-	if (hstmt != NULL)
-		SQLFreeHandle(SQL_HANDLE_STMT, hstmt);
 
 } // End of CleanUp()
 //-------------------------------------------------------------------
@@ -109,8 +112,8 @@ int Connection::DriverConnectAndAllocHandle()
 
       retcode = SQLDriverConnect( hdbc,
                                   desktopHandle,
-                                  (SQLCHAR*)"Driver={SQL Server Native Client 11.0}; Server=apanfutov-note; Database=Carolina; Uid=sa; Pwd=123456Aa;",
-                                  _countof("Driver={SQL Server Native Client 11.0}; Server=apanfutov-note; Database=Carolina; Uid=sa; Pwd=123456Aa;"),
+                                  (SQLCHAR*)"Driver={SQL Server Native Client 11.0}; Server=apanfutov-note; Database=Carolina; Uid=diasoft; Pwd=123456; Asynchronous Processing=True;",
+                                  _countof("Driver={SQL Server Native Client 11.0}; Server=apanfutov-note; Database=Carolina; Uid=diasoft; Pwd=123456; Asynchronous Processing=True;"),
                                   OutConnStr,
                                   255,
                                   &OutConnStrLen,
@@ -127,6 +130,7 @@ int Connection::DriverConnectAndAllocHandle()
 
 	  if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
 	  	throw SQLException("Connection failed! SQLAllocHandle(hdbc)", retcode);
+
 
 	}
 	catch (SQLException &ex)
@@ -301,4 +305,13 @@ void Connection::GetSPID()
 		ex.ShowMessage(hstmt);
 	}
 } // End of GetSPID
+//-------------------------------------------------------------------
+
+
+
+// GetHSTMT
+SQLHSTMT Connection::GetHSTMT()
+{
+	return this->hstmt;
+} // End of GetHSTMT
 //-------------------------------------------------------------------

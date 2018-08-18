@@ -9,20 +9,22 @@
 #include "SQLException.h"
 #include "constant.h"
 #include <vector>
+#include <string>
 #include "file.h"
 #include "connection.h"
 
 /////////////////////////////////////////////////////////
-class AsyncLoad : Connection
+class AsyncLoad 
 {
   public:
+	  AsyncLoad();
+	  ~AsyncLoad();
 	  std::vector <FALoad *> FALoads;
-	  file inputfile;
+	  unsigned long ProcessingRange;
 
-	  
-
-	  
-
+	  void RunLoadsInAsyncMode(std::vector <FALoad *> &, unsigned long);
+	  void SetProcessingRange(unsigned long &);
+	  SQLRETURN RunSingleLoad(std::string &);
 
 };
 

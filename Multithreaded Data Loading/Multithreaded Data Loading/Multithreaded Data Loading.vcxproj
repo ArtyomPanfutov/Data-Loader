@@ -119,9 +119,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AsyncLoad.cpp" />
     <ClCompile Include="connection.cpp" />
     <ClCompile Include="FALoad.cpp" />
     <ClCompile Include="file.cpp" />
+    <ClCompile Include="InputAttribute.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="SQLException.cpp" />
   </ItemGroup>
@@ -131,6 +133,7 @@
     <ClInclude Include="constant.h" />
     <ClInclude Include="FALoad.h" />
     <ClInclude Include="file.h" />
+    <ClInclude Include="InputAttribute.h" />
     <ClInclude Include="SQLException.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

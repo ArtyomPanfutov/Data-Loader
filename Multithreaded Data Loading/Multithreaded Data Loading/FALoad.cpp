@@ -16,8 +16,14 @@
 
 // Constructor FALoader()
 ////////////////////////////////////////////////////////////////////////
-FALoad::FALoad() : Connection()
-{  }
+FALoad::FALoad(std::string &filename) : Connection()
+{  
+	SQLRETURN sql_retcode;
+
+	FileName = filename; // What is it?
+
+	
+}
 // End of constructor FALoader()
 // ---------------------------------------------------------------------
 
@@ -31,14 +37,12 @@ FALoad::~FALoad(void)
 	for (std::vector< DSType *>::iterator it = DSTypes.begin(); it != DSTypes.end(); ++it)
 	{
 		delete *it;
-		
 	}
 	DSTypes.clear();
 
 	for (std::vector< Param *>::iterator it = SetupFormulaParams.begin(); it != SetupFormulaParams.end(); ++it)
 	{
-		delete *it;
-		
+		delete *it;		
 	}
 	SetupFormulaParams.clear();
 
@@ -46,21 +50,18 @@ FALoad::~FALoad(void)
 	for (std::vector< char *>::iterator it = Columns.begin(); it != Columns.end(); ++it)
 	{
 		delete *it;
-
 	}
 	Columns.clear();
 
 	for (std::vector<int *>::iterator it = ColumnsLen.begin(); it != ColumnsLen.end(); ++it)
 	{
 		delete *it;
-
 	}
 	ColumnsLen.clear();
 
 	for (std::vector< Param *>::iterator it = LastFormulaParams.begin(); it != LastFormulaParams.end(); ++it)
 	{
-		delete *it;
-		
+		delete *it;		
 	}
 	LastFormulaParams.clear();
 
@@ -933,11 +934,11 @@ void FALoad::GetTableColumnsFromDB()
 
 // StartBCP
 /////////////////////////////////////////////////////////////////////////////////////
-void FALoad::StartBCP(std::string &filename, std::string &fieldterm_str, std::string &rowterm_str, unsigned int &firstrow, unsigned int &lastrow, std::vector<std::string> &file_str)
+void FALoad::StartBCP(std::string &fieldterm_str, std::string &rowterm_str, unsigned long int &firstrow, unsigned long int &lastrow, std::vector<std::string> &file_str)
 {
 	int cbCol = 0;
 
-	std::ifstream file(filename);
+//	std::ifstream file(filename);
 	std::string cur_str;
 
 	int it = 0,
@@ -1056,7 +1057,7 @@ void FALoad::StartBCP(std::string &filename, std::string &fieldterm_str, std::st
 
 		std::cout << "\n rows copied: " << cRowsDone;
 
-		file.close();
+		//file.close();
 	}
 	catch (SQLException &ex)
 	{
@@ -1064,4 +1065,244 @@ void FALoad::StartBCP(std::string &filename, std::string &fieldterm_str, std::st
 	}
 	
 } // End of StartBCP
+//-----------------------------------------------------------------------------------
+
+
+// PrepareFormula()
+/////////////////////////////////////////////////////////////////////////////////////
+void FALoad::PrepareFormula(std::string &Formula, std::vector<Param *> &Params)
+{
+	try
+	{
+		for (int i = 0; i < Params.size(); i++)
+		{
+			// Get seed
+		//	std::cout << "\n CalcField " << Params[i]->CalcField;
+			if (strcmp(Params[i]->CalcField, "DealProtocolID") == 0)
+			{
+				SQLCHAR SQLGetNewImportProtocolID[] = "set nocount on declare @RetVal int, @ID DSIDENTIFIER exec @RetVal = ImportProtocol_Insert @ID out, 10000000162, '20171010', '20171010' select @RetVal, @ID ";
+
+				SQLINTEGER
+					cbRetVal = 0,
+					cbImportProtocolID = 0,
+					RetVal = 0;
+
+				double ImportProtocolID;
+
+				retcode = SQLExecDirect(
+					hstmt,
+					SQLGetNewImportProtocolID,
+					SQL_NTS);
+
+				if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
+					throw SQLException("PrepareFormula failed! SQLExecDirect(SQLGetNewImportProtocolID)", retcode);
+
+
+				if (retcode == SQL_SUCCESS)
+				{
+					while (TRUE)
+					{
+						retcode = SQLFetch(hstmt);
+						if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO)
+						{
+							throw SQLException("PrepareFormula failed! SQLFetch", retcode);
+						}
+
+						else if (retcode == SQL_SUCCESS)
+						{
+							// RetVal								
+							retcode = SQLGetData(
+								hstmt,
+								1,
+								SQL_C_ULONG,
+								&RetVal,
+								0,
+								&cbRetVal);
+
+							if (retcode != SQL_SUCCESS)
+								throw SQLException("PrepareFormula failed! SQLGetData(RetVal)", retcode);
+
+							
+
+							// ImportProtocolID							
+							retcode = SQLGetData(
+								hstmt,
+								2,
+								SQL_C_DOUBLE,
+								&ImportProtocolID,
+								0,
+								&cbImportProtocolID);
+
+							if (retcode != SQL_SUCCESS)
+								throw SQLException("PrepareFormula failed! SQLGetData(ImportProtocolID)", retcode);
+						}
+						else
+							break;
+					}
+				}
+
+				SQLRETURN closeCursRet = SQLCloseCursor(hstmt);
+				if (closeCursRet != SQL_SUCCESS)
+					throw SQLException("PrepareFormumla failed! SQLCloseCursor", retcode);
+
+				retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
+
+				if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
+					throw SQLException("PrepareFormula failed! SQLFreeStmt failed!", retcode);
+
+				// Check @RetVal 
+				if (RetVal == 0)
+				{	
+					Params[i]->Value = std::to_string(ImportProtocolID);
+					int pos = 0;
+					pos = Params[i]->Value.find(",", pos);
+					Params[i]->Value.erase(pos, Params[i]->Value.length() - pos);
+				}
+				else
+					throw SQLException("ImportProtocol_Insert returned retval!", retcode);
+
+			
+			}
+			else if (strcmp(Params[i]->CalcField, "Branch") == 0)
+			{
+				// Will be rewrote
+				unsigned long int BranchID;
+
+				std::cout << "\nEnter BranchID: ";
+				std::cin >> BranchID;
+
+				if (Params[i]->CalcProperty == 0)
+				  Params[i]->Value = std::to_string(BranchID);
+				else 
+					Params[i]->Value = std::string("'") + std::to_string(BranchID) + std::string("'");
+			}
+			else if (strcmp(Params[i]->CalcField, "FileName") == 0)
+			{
+				Params[i]->Value = std::string("'") + FileName + std::string("'");
+			}
+			else
+			{ 
+				std::string Value;
+				std::cout << "\n Enter " << Params[i]->CalcField << ": ";
+				std::cin >> Value;
+
+				if (Params[i]->CalcProperty == 0)
+					Params[i]->Value = Value;
+				else
+					Params[i]->Value = std::string("'") + Value + std::string("'");
+			}
+
+			// Change formula's text
+			std::string finding_str;
+
+			finding_str = std::string("%") + std::to_string(static_cast<int>(Params[i]->Number)) + std::string("!");
+
+			std::cout << "\n finding str " << finding_str;
+			int cur_pos = 0;
+
+			while ((cur_pos = Formula.find(finding_str, cur_pos)) != std::string::npos)
+			{
+				Formula.replace(cur_pos, finding_str.length(), Params[i]->Value);
+				cur_pos++;
+			}
+
+			cur_pos = 0;
+
+            // Set nocount setting, if not setted.
+			std::string nocount_on_str = "set nocount on ";
+			if (cur_pos = Formula.find(nocount_on_str, cur_pos) == 0)
+				Formula.insert(0, nocount_on_str);
+
+		}
+
+		std::cout << "\nPrepared formula's text: \n" << Formula;
+
+	}
+	catch (SQLException &ex)
+	{
+		ex.ShowMessage(hstmt);
+	}
+} // End of PrepareFormula
+//----------------------------------------------------------------------------------
+
+
+// ExecuteFormula
+////////////////////////////////////////////////////////////////////////////////////
+void FALoad::ExecuteFormula(std::string &Formula)
+{
+	SQLCHAR *SQLFormula = (unsigned char *)Formula.c_str();	
+
+	SQLRETURN mrRetcode;
+
+	SQLINTEGER cbRetVal;
+
+	unsigned int RetVal = 0; // For returning value from the formula
+
+	try
+	{
+		retcode = SQLExecDirect(
+			hstmt,
+			SQLFormula,
+			SQL_NTS);
+
+		if (retcode != SQL_SUCCESS && retcode != SQL_NO_DATA)
+			throw SQLException("ExecuteFormula failed! SQLExecDirect(SQLFormula)", retcode);	
+	
+		do 
+		{  
+			if (retcode == SQL_SUCCESS)
+			{	
+				while (TRUE)
+				{
+					retcode = SQLFetch(hstmt);
+
+					if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO)
+						throw SQLException("ExecuteFormula failed! SQLFetch", retcode);
+					else if (retcode == SQL_SUCCESS)
+					{
+						// RetVal
+						retcode = SQLGetData(
+							hstmt,
+							1,
+							SQL_C_ULONG,
+							&RetVal,
+							10,
+							&cbRetVal);
+
+						if (retcode != SQL_SUCCESS)
+							throw SQLException("ExecuteFormula failed! SQLGetData(RetVal)", retcode);
+					}
+					else
+						break;
+				}
+
+			}
+		} while (mrRetcode = SQLMoreResults == SQL_SUCCESS);
+
+		//std::cout << "\n RetVal " << RetVal;
+
+		retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
+		if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
+		  throw SQLException("ExecuteFormula failed! SQLFreeStmt failed!", retcode);
+
+
+
+	}
+	catch (SQLException &ex)
+	{
+		ex.ShowMessage(hstmt);
+	}	
+	
+} // End of ExecuteFormula
+//----------------------------------------------------------------------------------
+
+
+// SetProcessingRange
+/////////////////////////////////////////////////////////////////////////////////////
+void FALoad::SetProcessingRange(unsigned long &first, unsigned long&last)
+{
+	this->FirstRow = first;
+	this->LastRow = last;
+
+} // End of SetProcessingRange
 //-----------------------------------------------------------------------------------
