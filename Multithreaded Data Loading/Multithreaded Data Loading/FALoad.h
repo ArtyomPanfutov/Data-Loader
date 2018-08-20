@@ -24,7 +24,7 @@ struct DSType
 struct Param
 {
 	double Number;             // Номер параметра
-    char CalcField[30];     // Имя параметра
+    char CalcField[30];        // Имя параметра
 	unsigned int CalcProperty; // 0 - числовой 1 - строковый
 	std::string Value;         // Значение параметра
 	double GetInfo(std::string &, unsigned int &); // Возвращает номер параметра + информацию по ссылкам
@@ -84,8 +84,8 @@ class FALoad : public Connection
 	void GetTableColumnsFromDB(); // Получить количество столбцов таблицы из ParamList + информация о длине каждого столбца в Columns
 	void PrepareFormula(std::string &, std::vector<Param *> &); // Обработка текста формулы (подстановка параметров)
 	void ExecuteFormula(std::string &); // Запуск запроса с текстом формулы
-	void StartBCP(std::string &, std::string &, unsigned long int&, unsigned long int&, std::vector<std::string> &); // Загрузить данные в таблица по BCP из файла
 	void SetProcessingRange(unsigned long &, unsigned long &); // Установить границы диапазона обрабатываемых строк 
+	unsigned long StartBCP(std::string &, std::string &, unsigned long int&, unsigned long int&, std::vector<std::string> &); // Загрузить данные в таблица по BCP из файла
 };
 
 

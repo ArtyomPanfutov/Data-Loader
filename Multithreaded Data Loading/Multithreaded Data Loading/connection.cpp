@@ -99,8 +99,10 @@ void Connection::CleanUp()
 // DriverConnectAndAllocHandle() 
 //////////////////////////////////////////////////////////////////////
 
-int Connection::DriverConnectAndAllocHandle()
+int Connection::DriverConnectAndAllocHandle(std::string &ConnectionString)
 {
+	SQLCHAR *ConnStr = (SQLCHAR *)ConnectionString.c_str();
+
 	try
 	{ 
 	  retcode = SQLSetConnectAttr(hdbc, SQL_COPT_SS_BCP, (void *)SQL_BCP_ON, SQL_IS_INTEGER);
@@ -112,8 +114,8 @@ int Connection::DriverConnectAndAllocHandle()
 
       retcode = SQLDriverConnect( hdbc,
                                   desktopHandle,
-                                  (SQLCHAR*)"Driver={SQL Server Native Client 11.0}; Server=apanfutov-note; Database=Carolina; Uid=diasoft; Pwd=123456; Asynchronous Processing=True;",
-                                  _countof("Driver={SQL Server Native Client 11.0}; Server=apanfutov-note; Database=Carolina; Uid=diasoft; Pwd=123456; Asynchronous Processing=True;"),
+                                  ConnStr,
+                                  ConnectionString.length(),
                                   OutConnStr,
                                   255,
                                   &OutConnStrLen,

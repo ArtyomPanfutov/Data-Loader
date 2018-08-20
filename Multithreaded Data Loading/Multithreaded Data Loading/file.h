@@ -23,6 +23,7 @@ public:
 	void preparefile(std::vector <FALoad *>, std::string &, std::string &);
 
 	void PutStrIntoVector();
+	unsigned int GetCountOfStrings();
 };
 
 

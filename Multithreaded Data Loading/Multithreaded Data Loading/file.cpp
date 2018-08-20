@@ -145,3 +145,12 @@ void file::PutStrIntoVector()
   file.close();
 } // End of PutStrIntoVector
 //------------------------------------------------------------
+
+
+// GetCountOfStrings()
+///////////////////////////////////////////////////////////////
+unsigned int file::GetCountOfStrings()
+{
+	return this->text_str.size();
+} // End of GetCountOfStrings
+//-------------------------------------------------------------

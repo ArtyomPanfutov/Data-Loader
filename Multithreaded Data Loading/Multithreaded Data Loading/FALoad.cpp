@@ -934,7 +934,7 @@ void FALoad::GetTableColumnsFromDB()
 
 // StartBCP
 /////////////////////////////////////////////////////////////////////////////////////
-void FALoad::StartBCP(std::string &fieldterm_str, std::string &rowterm_str, unsigned long int &firstrow, unsigned long int &lastrow, std::vector<std::string> &file_str)
+unsigned long FALoad::StartBCP(std::string &fieldterm_str, std::string &rowterm_str, unsigned long int &firstrow, unsigned long int &lastrow, std::vector<std::string> &file_str)
 {
 	int cbCol = 0;
 
@@ -968,7 +968,6 @@ void FALoad::StartBCP(std::string &fieldterm_str, std::string &rowterm_str, unsi
 			throw SQLException("StartBCP failed! bcp_init", retcode);
 
 		// Bind variables to table columns.
-
 		for (int i = 0; i < TableColumns; i++)
 		{
 			retcode = bcp_bind(
@@ -1051,7 +1050,7 @@ void FALoad::StartBCP(std::string &fieldterm_str, std::string &rowterm_str, unsi
 		cRowsDone = bcp_done(hdbc);
 		if ((cRowsDone == -1)) 
 		{
-			printf("bcp_done(hdbc) Failed\n\n");
+			std::cout << "bcp_done(hdbc) Failed\n\n";
 			
 		}
 
@@ -1063,7 +1062,8 @@ void FALoad::StartBCP(std::string &fieldterm_str, std::string &rowterm_str, unsi
 	{
 		ex.ShowMessage(hstmt);
 	}
-	
+
+	return cRowsDone;
 } // End of StartBCP
 //-----------------------------------------------------------------------------------
 

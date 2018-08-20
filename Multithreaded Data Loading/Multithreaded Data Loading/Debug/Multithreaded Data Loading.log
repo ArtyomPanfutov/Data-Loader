@@ -1,3 +1,10 @@
-﻿  InputAttribute.cpp
-d:\apanfutov\black hole\c++_proj\multithreaded data loading\multithreaded data loading\multithreaded data loading\inputattribute.cpp(128): warning C4018: <: несоответствие типов со знаком и без знака
+﻿  main.cpp
+d:\apanfutov\black hole\c++_proj\multithreaded data loading\multithreaded data loading\multithreaded data loading\main.cpp(42): warning C4302: reinterpret_cast: усечение из "const char *" к "unsigned char"
+d:\apanfutov\black hole\c++_proj\multithreaded data loading\multithreaded data loading\multithreaded data loading\main.cpp(62): warning C4244: =: преобразование "double" в "unsigned long", возможна потеря данных
+d:\apanfutov\black hole\c++_proj\multithreaded data loading\multithreaded data loading\multithreaded data loading\main.cpp(71): warning C4018: <: несоответствие типов со знаком и без знака
+d:\apanfutov\black hole\c++_proj\multithreaded data loading\multithreaded data loading\multithreaded data loading\main.cpp(79): warning C4302: приведение типов: усечение из "const char *" к "char"
+d:\apanfutov\black hole\c++_proj\multithreaded data loading\multithreaded data loading\multithreaded data loading\main.cpp(97): warning C4302: приведение типов: усечение из "const char *" к "char"
+d:\apanfutov\black hole\c++_proj\multithreaded data loading\multithreaded data loading\multithreaded data loading\main.cpp(102): warning C4267: аргумент: преобразование из "size_t" в "const char"; возможна потеря данных
+d:\apanfutov\black hole\c++_proj\multithreaded data loading\multithreaded data loading\multithreaded data loading\main.cpp(108): warning C4018: <: несоответствие типов со знаком и без знака
+d:\apanfutov\black hole\c++_proj\multithreaded data loading\multithreaded data loading\multithreaded data loading\main.cpp(113): warning C4302: приведение типов: усечение из "const char *" к "char"
   Multithreaded Data Loading.vcxproj -> D:\apanfutov\black hole\c++_proj\Multithreaded Data Loading\Multithreaded Data Loading\Debug\Multithreaded Data Loading.exe

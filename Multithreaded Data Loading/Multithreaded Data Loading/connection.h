@@ -9,6 +9,7 @@
 #include "constant.h"
 #include <sql.h>
 #include <sqlext.h>
+#include <string>
 #include <odbcss.h>
 
 /////////////////////////////////////////////////////////////////////////
@@ -40,7 +41,7 @@ class Connection
 	  int SPID;
 	  Connection();
 	  ~Connection();
-	  int DriverConnectAndAllocHandle();
+	  int DriverConnectAndAllocHandle(std::string &);
 	  int TestConnection(const short int&);
 	  void CleanUp();  
 	  void ShowErrCode(SQLRETURN&);

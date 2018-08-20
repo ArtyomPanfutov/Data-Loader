@@ -24,7 +24,7 @@ class AsyncLoad
 
 	  void RunLoadsInAsyncMode(std::vector <FALoad *> &, unsigned long);
 	  void SetProcessingRange(unsigned long &);
-	  SQLRETURN RunSingleLoad(std::string &);
+	  void Message(std::string &);
 
 };
 

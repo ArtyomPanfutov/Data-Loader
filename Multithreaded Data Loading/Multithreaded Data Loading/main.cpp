@@ -22,22 +22,105 @@ int main()
 
 	setlocale(LC_ALL, "Russian");
 
-	/*Connection a;
-
-
-	a.DriverConnectAndAllocHandle();
-
-	a.TestConnection(1);*/
-	std::string filename = "institution.txt";
-	std::string inputpath = "d:";
-	std::string savepath = "d:";
-	file t(filename, inputpath, savepath);
-
 	InputAttribute UserInfo;
+	AsyncLoad MainObj;
 
-	//UserInfo.UserNameRequest();
-	//UserInfo.UserPassRequest();
-	UserInfo.GetConfig();
+	FALoad *CurrentThread;
+
+	std::string
+		filename = UserInfo.GetFileName(),
+		inputpath,
+		savepath,
+		LoadBrief = UserInfo.GetLoadBrief(),
+		ToDisplay,
+		rowterm = "\r\n",
+		fieldterm;
+
+
+	file DataFile(filename, inputpath, savepath);
+
+	const char *chLoadBrief = LoadBrief.c_str();
+
+	std::cout << chLoadBrief;
+
+
+	system("pause");
+
+	unsigned int CountOfStrings, Threads;
+	unsigned long Batch, FirstRow, LastRow, RowsDone;
+
+	Threads = UserInfo.GetNumberOfThreads();
+
+	DataFile.PutStrIntoVector();
+
+	CountOfStrings = DataFile.GetCountOfStrings();
+	
+	ToDisplay = " Strings to process: " + std::to_string(CountOfStrings);
+	MainObj.Message(ToDisplay);
+
+	if ((CountOfStrings % Threads) != 0)
+		Batch = (CountOfStrings / Threads) + .5;
+	else
+		Batch = CountOfStrings / Threads;
+
+	ToDisplay = " Creating objects for loads... Batch: " + std::to_string(Batch);
+	MainObj.Message(ToDisplay);
+
+
+	// Create objects and prepare sql formula for each object.
+	for (int i = 0; i < Threads; i++)
+	{
+		std::string ConnectionString = UserInfo.GetConnectionString();
+
+		MainObj.FALoads.push_back(new FALoad(filename));
+
+		CurrentThread = MainObj.FALoads.back();
+
+		ToDisplay = " The object " + chLoadBrief + (const char)". Number: " + std::to_string(i) + " created!";
+		MainObj.Message(ToDisplay);
+
+		// Don't forget to rewrote this part (too many identical queries to server)
+		CurrentThread->DriverConnectAndAllocHandle(ConnectionString);
+		CurrentThread->SetLoadBrief(chLoadBrief);
+		CurrentThread->GetDSTypesFromDB();
+		CurrentThread->GetLoadInfo();
+		CurrentThread->GetSetupParamsFromDB();
+		CurrentThread->GetLastParamsFromDB();
+		CurrentThread->GetSPID();
+
+		ToDisplay = " Connected on SPID " + std::to_string(CurrentThread->SPID);
+		MainObj.Message(ToDisplay);
+
+		CurrentThread->PrepareFormula(CurrentThread->LastFormulaStr, CurrentThread->LastFormulaParams);
+		CurrentThread->PrepareFormula(CurrentThread->SetupFormulaStr, CurrentThread->SetupFormulaParams);
+
+		ToDisplay = " Preparing of the object " + chLoadBrief + (const char)". Number: " + std::to_string(i) + " is completed!";
+		MainObj.Message(ToDisplay);
+        
+	}
+		
+    fieldterm = ((const char *)MainObj.FALoads.front()->Delimiter, strlen(reinterpret_cast<char *>(MainObj.FALoads.front()->Delimiter)));
+
+	FirstRow = 0;
+	LastRow = Batch;
+	
+	// Execute the setup formula and start BCP.
+	for (int i = 0; i < Threads; i++)
+	{
+		CurrentThread = MainObj.FALoads[i];
+		CurrentThread->ExecuteFormula(CurrentThread->SetupFormulaStr);
+
+		ToDisplay = " Start BCP push for the object " + chLoadBrief + (const char)". Number: " + std::to_string(i);
+		MainObj.Message(ToDisplay);
+		
+		RowsDone = CurrentThread->StartBCP(fieldterm, rowterm, FirstRow, LastRow, DataFile.text_str);
+
+		ToDisplay = " BCP load is completed!";
+		MainObj.Message(ToDisplay);
+	}
+
+	// Start SQL postprocessing.
+	MainObj.RunLoadsInAsyncMode(MainObj.FALoads, 0);
 
 
 /*	FALoad a(filename), b(filename), c(filename);
@@ -80,7 +163,7 @@ int main()
 
 	
 	std::string fieldterm((const char *)a.Delimiter, strlen(reinterpret_cast<char *>(a.Delimiter)));
-	std::string rowterm("\r\n");
+	
 
 	
 	int offset = 3;
