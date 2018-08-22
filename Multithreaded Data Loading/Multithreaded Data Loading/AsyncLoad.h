@@ -17,10 +17,11 @@
 class AsyncLoad 
 {
   public:
-	  AsyncLoad();
+	  AsyncLoad(unsigned int);
 	  ~AsyncLoad();
 	  std::vector <FALoad *> FALoads;
 	  unsigned long ProcessingRange;
+	  unsigned int OffsetTime;
 
 	  void RunLoadsInAsyncMode(std::vector <FALoad *> &, unsigned long);
 	  void SetProcessingRange(unsigned long &);

@@ -42,14 +42,17 @@ class FALoad : public Connection
 	std::vector <char *> Columns;             // Данные для каждого столбца таблицы записывать сюда
 	std::vector <int *> ColumnsLen;           // Длина столбцов 
 
+	bool ShowDiagInfo;
+
 	SQLINTEGER
 		DSBRIEFNAME_Length,
 		DSCOMMENT_Length;
 
-	unsigned long int
+	unsigned long
 		TableColumns, // Количество столбцов в таблице из ParamList
 		FirstRow,     // Номер первой строки из диапазона, которая будет обработана(включительно)
-		LastRow;      // Номер последенй строки из диапазона, которая будет обработана(включительно)
+		LastRow,      // Номер последенй строки из диапазона, которая будет обработана(включительно)
+		BranchID;     // Идентификатор филиала
 
 	double
 		ImportFileID, // Идентификатор загрузки
@@ -59,7 +62,6 @@ class FALoad : public Connection
 		LastFormula;  // Идентификатор формулы постаброботки
 
 	 SQLCHAR
-		 *LoadBrief,      // Сокращение загрузки
 		 Delimiter[11],   // Символ разделитель
 		 PathInput[256],  // Путь к файлу загрузки 
 		 PathOutput[256], // Путь для сохранения файла
@@ -69,12 +71,14 @@ class FALoad : public Connection
 	 std::string
 		 SetupFormulaStr, // Текст формулы предобработки
 		 LastFormulaStr,  // Текст формулы постобработки
-		 FileName;        // Имя загружаемое файла
+		 FileName,        // Имя загружаемое файла
+		 LoadBrief;     // Сокращение загрузки
 
+	 SQLRETURN sql_retcode;
 	
-    FALoad(std::string &);
+    FALoad(std::string &, bool, unsigned long);
 	~FALoad();
-	void SetLoadBrief(SQLCHAR &); // Записать сокращение загрузки
+	void SetLoadBrief(std::string &); // Записать сокращение загрузки
 	void ShowLoadBrief();         // Вывести на экран сокращение загрузки
     void GetLoadInfo();           // Начитка информации о загрузке из БД
 	void GetFormulaText(SQLHSTMT &, double &, std::string &); // Вытащить текст формулы из БД

@@ -22,6 +22,8 @@ const short int SQL_DRIVER_MAX_LENGTH = 128;
 const std::string SERVERNAME_TAG = "SERVERNAME";
 const std::string DATABASE_TAG = "DATABASE";
 const std::string DRIVER_TAG = "DRIVER";
+const std::string SHOWDIAGINFO_TAG = "ShowDiagInfo";
+const std::string OFFSET_TAG = "OffsetTime";
 
 
 #endif // CONSTANT_H

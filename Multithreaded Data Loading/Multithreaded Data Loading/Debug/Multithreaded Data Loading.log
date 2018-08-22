@@ -1,10 +1,30 @@
-﻿  main.cpp
-d:\apanfutov\black hole\c++_proj\multithreaded data loading\multithreaded data loading\multithreaded data loading\main.cpp(42): warning C4302: reinterpret_cast: усечение из "const char *" к "unsigned char"
-d:\apanfutov\black hole\c++_proj\multithreaded data loading\multithreaded data loading\multithreaded data loading\main.cpp(62): warning C4244: =: преобразование "double" в "unsigned long", возможна потеря данных
-d:\apanfutov\black hole\c++_proj\multithreaded data loading\multithreaded data loading\multithreaded data loading\main.cpp(71): warning C4018: <: несоответствие типов со знаком и без знака
-d:\apanfutov\black hole\c++_proj\multithreaded data loading\multithreaded data loading\multithreaded data loading\main.cpp(79): warning C4302: приведение типов: усечение из "const char *" к "char"
-d:\apanfutov\black hole\c++_proj\multithreaded data loading\multithreaded data loading\multithreaded data loading\main.cpp(97): warning C4302: приведение типов: усечение из "const char *" к "char"
-d:\apanfutov\black hole\c++_proj\multithreaded data loading\multithreaded data loading\multithreaded data loading\main.cpp(102): warning C4267: аргумент: преобразование из "size_t" в "const char"; возможна потеря данных
-d:\apanfutov\black hole\c++_proj\multithreaded data loading\multithreaded data loading\multithreaded data loading\main.cpp(108): warning C4018: <: несоответствие типов со знаком и без знака
-d:\apanfutov\black hole\c++_proj\multithreaded data loading\multithreaded data loading\multithreaded data loading\main.cpp(113): warning C4302: приведение типов: усечение из "const char *" к "char"
+﻿  AsyncLoad.cpp
+  connection.cpp
+d:\apanfutov\black hole\c++_proj\multithreaded data loading\multithreaded data loading\multithreaded data loading\connection.cpp(122): warning C4267: аргумент: преобразование из "size_t" в "SQLSMALLINT"; возможна потеря данных
+  FALoad.cpp
+d:\apanfutov\black hole\c++_proj\multithreaded data loading\multithreaded data loading\multithreaded data loading\faload.cpp(279): warning C4018: <: несоответствие типов со знаком и без знака
+d:\apanfutov\black hole\c++_proj\multithreaded data loading\multithreaded data loading\multithreaded data loading\faload.cpp(422): warning C4018: <: несоответствие типов со знаком и без знака
+d:\apanfutov\black hole\c++_proj\multithreaded data loading\multithreaded data loading\multithreaded data loading\faload.cpp(812): warning C4101: cbColumnLength: неиспользованная локальная переменная
+d:\apanfutov\black hole\c++_proj\multithreaded data loading\multithreaded data loading\multithreaded data loading\faload.cpp(975): warning C4018: <: несоответствие типов со знаком и без знака
+d:\apanfutov\black hole\c++_proj\multithreaded data loading\multithreaded data loading\multithreaded data loading\faload.cpp(1000): warning C4018: <: несоответствие типов со знаком и без знака
+d:\apanfutov\black hole\c++_proj\multithreaded data loading\multithreaded data loading\multithreaded data loading\faload.cpp(1017): warning C4018: <=: несоответствие типов со знаком и без знака
+d:\apanfutov\black hole\c++_proj\multithreaded data loading\multithreaded data loading\multithreaded data loading\faload.cpp(1032): warning C4018: <: несоответствие типов со знаком и без знака
+d:\apanfutov\black hole\c++_proj\multithreaded data loading\multithreaded data loading\multithreaded data loading\faload.cpp(1036): warning C4018: >: несоответствие типов со знаком и без знака
+d:\apanfutov\black hole\c++_proj\multithreaded data loading\multithreaded data loading\multithreaded data loading\faload.cpp(1068): warning C4018: <: несоответствие типов со знаком и без знака
+d:\apanfutov\black hole\c++_proj\multithreaded data loading\multithreaded data loading\multithreaded data loading\faload.cpp(1070): warning C4018: <=: несоответствие типов со знаком и без знака
+d:\apanfutov\black hole\c++_proj\multithreaded data loading\multithreaded data loading\multithreaded data loading\faload.cpp(967): warning C4101: chColumn: неиспользованная локальная переменная
+d:\apanfutov\black hole\c++_proj\multithreaded data loading\multithreaded data loading\multithreaded data loading\faload.cpp(1122): warning C4018: <: несоответствие типов со знаком и без знака
+  file.cpp
+d:\apanfutov\black hole\c++_proj\multithreaded data loading\multithreaded data loading\multithreaded data loading\file.cpp(79): warning C4018: <: несоответствие типов со знаком и без знака
+d:\apanfutov\black hole\c++_proj\multithreaded data loading\multithreaded data loading\multithreaded data loading\file.cpp(81): warning C4018: >: несоответствие типов со знаком и без знака
+d:\apanfutov\black hole\c++_proj\multithreaded data loading\multithreaded data loading\multithreaded data loading\file.cpp(99): warning C4018: <: несоответствие типов со знаком и без знака
+d:\apanfutov\black hole\c++_proj\multithreaded data loading\multithreaded data loading\multithreaded data loading\file.cpp(101): warning C4018: <: несоответствие типов со знаком и без знака
+  InputAttribute.cpp
+d:\apanfutov\black hole\c++_proj\multithreaded data loading\multithreaded data loading\multithreaded data loading\inputattribute.cpp(182): warning C4018: <: несоответствие типов со знаком и без знака
+d:\apanfutov\black hole\c++_proj\multithreaded data loading\multithreaded data loading\multithreaded data loading\inputattribute.cpp(333): warning C4552: "+": результат выражения не используется
+  main.cpp
+d:\apanfutov\black hole\c++_proj\multithreaded data loading\multithreaded data loading\multithreaded data loading\main.cpp(81): warning C4018: <: несоответствие типов со знаком и без знака
+d:\apanfutov\black hole\c++_proj\multithreaded data loading\multithreaded data loading\multithreaded data loading\main.cpp(138): warning C4018: <: несоответствие типов со знаком и без знака
+  SQLException.cpp
+  Создание кода...
   Multithreaded Data Loading.vcxproj -> D:\apanfutov\black hole\c++_proj\Multithreaded Data Loading\Multithreaded Data Loading\Debug\Multithreaded Data Loading.exe

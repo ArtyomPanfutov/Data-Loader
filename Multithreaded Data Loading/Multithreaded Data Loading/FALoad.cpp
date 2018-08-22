@@ -16,11 +16,15 @@
 
 // Constructor FALoader()
 ////////////////////////////////////////////////////////////////////////
-FALoad::FALoad(std::string &filename) : Connection()
+FALoad::FALoad(std::string &filename, bool ShowDiag, unsigned long Branch) : Connection() 
 {  
-	SQLRETURN sql_retcode;
+	
 
-	FileName = filename; // What is it?
+	this->ShowDiagInfo = ShowDiag;
+
+	this->BranchID = Branch;
+
+	this->FileName = filename; // For formula paramter(FileName)
 
 	
 }
@@ -83,7 +87,7 @@ void FALoad::GetLoadInfo()
                                        SetupFormula,\
                                        LastFormula\
                                   from tImportFile with (nolock)\
-                                 where Brief = ? and ImportType = 5";
+                                 where Brief like ? and ImportType = 5";
 	
 
 	SQLINTEGER
@@ -97,6 +101,9 @@ void FALoad::GetLoadInfo()
 		cbSetupFormula,
 		cbLastFormula;
 
+	
+	char *BriefParam = (char *)this->LoadBrief.c_str();
+
 	try
 	{
 		retcode = SQLBindParameter( hstmt, 
@@ -104,10 +111,10 @@ void FALoad::GetLoadInfo()
 			                        SQL_PARAM_INPUT,
 			                        SQL_C_CHAR, 
 			                        SQL_VARCHAR,
-			                        10,
+			                        10,                   // Nailed on the DSBRIEFNAME length
 			                        0,
-			                        LoadBrief,
-			                        sizeof(LoadBrief),
+			                        BriefParam,
+			                        sizeof(BriefParam),
 			                        &cbBrief );
 
 		if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
@@ -118,12 +125,12 @@ void FALoad::GetLoadInfo()
 		retcode = SQLExecDirect( hstmt, 
 			                     SQLGetLoadInfo, 
 			                     SQL_NTS );
-
+		
 		if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
 		{
 			throw SQLException("GetLoadInfo failed! SQLExecDirect(SQLGetLoadInfo)", retcode);
 		}
-
+		
 		if (retcode == SQL_SUCCESS)
 		{
 			
@@ -227,15 +234,18 @@ void FALoad::GetLoadInfo()
 					if (retcode != SQL_SUCCESS)
 						throw SQLException("GetLoadInfo failed! SQLGetData(LastFormula)", retcode);
 
-					std::cout.setf(std::ios::fixed);
-					std::cout << "\n ImportFileID " << ImportFileID;
-					std::cout << "\n Delimiter " << Delimiter;
-					std::cout << "\n PathInput " << PathInput;
-					std::cout << "\n PathOutput " << PathOutput;
-					std::cout << "\n ParamList " << ParamList;
-					std::cout << "\n OEMToANSI " << OEMToANSI;
-					std::cout << "\n SetupFormula " << SetupFormula;
-					std::cout << "\n LastFormula" << LastFormula;
+					if (ShowDiagInfo)
+					{
+						std::cout.setf(std::ios::fixed);
+						std::cout << "\n ImportFileID " << ImportFileID;
+						std::cout << "\n Delimiter " << Delimiter;
+						std::cout << "\n PathInput " << PathInput;
+						std::cout << "\n PathOutput " << PathOutput;
+						std::cout << "\n ParamList " << ParamList;
+						std::cout << "\n OEMToANSI " << OEMToANSI;
+						std::cout << "\n SetupFormula " << SetupFormula;
+						std::cout << "\n LastFormula" << LastFormula;
+					}
 				}
 				else
 				{
@@ -255,16 +265,23 @@ void FALoad::GetLoadInfo()
 
 		this->GetFormulaText(hstmt, SetupFormula, SetupFormulaStr);
 		this->GetFormulaText(hstmt, LastFormula, LastFormulaStr);
-		std::cout << "\n SetupFormulaStr:\n" << SetupFormulaStr;
-		std::cout << "\n SetupFormulaStr:\n" << LastFormulaStr;
-
-		GetTableColumnsFromDB();
-		std::cout << "\n TableColumns: " << TableColumns;
 		
-		for (int i = 0; i < ColumnsLen.size(); i++)
+		
+		GetTableColumnsFromDB();
+		
+		if (ShowDiagInfo)
 		{
-			std::cout << "\n ColumnLen " << i << " " << *ColumnsLen[i];
+			std::cout << "\n SetupFormulaStr:\n" << SetupFormulaStr;
+			std::cout << "\n SetupFormulaStr:\n" << LastFormulaStr;
+
+			std::cout << "\n TableColumns: " << TableColumns;
+
+			for (int i = 0; i < ColumnsLen.size(); i++)
+			{
+				std::cout << "\n ColumnLen " << i << " " << *ColumnsLen[i];
+			}
 		}
+		
 	}
 	catch (SQLException &ex)
 	{
@@ -281,9 +298,9 @@ void FALoad::GetLoadInfo()
 
 // SetLoadBrief()
 ///////////////////////////////////////////////////////////////////////
-void FALoad::SetLoadBrief(SQLCHAR &Brief)
+void FALoad::SetLoadBrief(std::string &Brief)
 {
-	LoadBrief = &Brief;
+	this->LoadBrief = Brief;
 } // End of SetLoadBrief()
 //---------------------------------------------------------------------
 
@@ -292,7 +309,8 @@ void FALoad::SetLoadBrief(SQLCHAR &Brief)
 ///////////////////////////////////////////////////////////////////////
 void FALoad::ShowLoadBrief()
 {
-	  std::cout << "\n Сокращение загрузки: " << LoadBrief;
+	//setlocale(LC_ALL, "Russian");
+	  std::cout << "\n Сокращение загрузки: " << this->LoadBrief;
 } // End of ShowLoadBrief()
 //--------------------------------------------------------------------
 
@@ -558,7 +576,7 @@ void FALoad::GetSetupParamsFromDB()
 			SQL_PARAM_INPUT,
 			SQL_C_DOUBLE,
 			SQL_DOUBLE,
-			10,
+			15,
 			0,
 			&SetupFormula,
 			sizeof(SetupFormula),
@@ -672,7 +690,7 @@ void FALoad::GetLastParamsFromDB()
 			SQL_PARAM_INPUT,
 			SQL_C_DOUBLE,
 			SQL_DOUBLE,
-			10,
+			15,
 			0,
 			&LastFormula,
 			sizeof(LastFormula),
@@ -967,6 +985,17 @@ unsigned long FALoad::StartBCP(std::string &fieldterm_str, std::string &rowterm_
 		if (retcode != SUCCEED)
 			throw SQLException("StartBCP failed! bcp_init", retcode);
 
+
+		// Set code page.
+		if (this->OEMToANSI == 1)
+			retcode = bcp_control(hdbc, BCPFILECP, (void *)1251);
+		else 
+			retcode = bcp_control(hdbc, BCPFILECP, (void *)BCPFILECP_OEMCP);
+
+		if (retcode == FAIL)
+			throw SQLException("StartBCP failed! bcp_control(CP)", retcode);
+
+
 		// Bind variables to table columns.
 		for (int i = 0; i < TableColumns; i++)
 		{
@@ -992,8 +1021,11 @@ unsigned long FALoad::StartBCP(std::string &fieldterm_str, std::string &rowterm_
 			// Set num column.
 			sprintf_s(Columns[1], *ColumnsLen[1], "%d", str_num);
 
-			std::cout << "\n Col " << 0 << " " << Columns[0];
-			std::cout << "\n Col " << 1 << " " << Columns[1];
+			if (ShowDiagInfo)
+			{
+				std::cout << "\n Col " << 0 << " " << Columns[0];
+				std::cout << "\n Col " << 1 << " " << Columns[1];
+			}
 
 			it = 2, cur_pos = 0, last_pos = 0;
 
@@ -1007,7 +1039,11 @@ unsigned long FALoad::StartBCP(std::string &fieldterm_str, std::string &rowterm_
 					{
 						strcpy_s(Columns[it], *ColumnsLen[it], (cur_str.substr(last_pos, cur_pos - last_pos)).c_str());
 
-						std::cout << "\n Col " << it << " " << Columns[it];
+						if (ShowDiagInfo)
+						{
+							std::cout << "\n Col " << it << " " << Columns[it];
+						}
+
 						last_pos = cur_pos + 1;
 						cur_pos++;
 						it++;
@@ -1019,7 +1055,11 @@ unsigned long FALoad::StartBCP(std::string &fieldterm_str, std::string &rowterm_
 				cur_pos = cur_str.find(rowterm_str, cur_pos);
 				strcpy_s(Columns[it], *ColumnsLen[it], (cur_str.substr(last_pos, cur_pos - last_pos)).c_str());
 
-				std::cout << "\n Col " << it << " " << Columns[it];
+				if (ShowDiagInfo)
+				{
+					std::cout << "\n Col " << it << " " << Columns[it];
+				}
+
 				last_pos = cur_pos - 1;
 				it++;
 			}
@@ -1030,7 +1070,12 @@ unsigned long FALoad::StartBCP(std::string &fieldterm_str, std::string &rowterm_
 				while (it <= TableColumns - 1)
 				{
 					strcpy_s(Columns[it], *ColumnsLen[it], " ");
-					std::cout << "\n Col " << it << " " << Columns[it];
+
+					if (ShowDiagInfo)
+					{
+						std::cout << "\n Col " << it << " " << Columns[it];
+					}
+
 					it++;
 				}
 
@@ -1050,11 +1095,11 @@ unsigned long FALoad::StartBCP(std::string &fieldterm_str, std::string &rowterm_
 		cRowsDone = bcp_done(hdbc);
 		if ((cRowsDone == -1)) 
 		{
-			std::cout << "bcp_done(hdbc) Failed\n\n";
+			std::cout << "\n bcp_done(hdbc) Failed\n\n";
 			
 		}
 
-		std::cout << "\n rows copied: " << cRowsDone;
+		std::cout << "\n\n rows copied: " << cRowsDone << std::endl;
 
 		//file.close();
 	}
@@ -1076,27 +1121,51 @@ void FALoad::PrepareFormula(std::string &Formula, std::vector<Param *> &Params)
 	{
 		for (int i = 0; i < Params.size(); i++)
 		{
-			// Get seed
-		//	std::cout << "\n CalcField " << Params[i]->CalcField;
 			if (strcmp(Params[i]->CalcField, "DealProtocolID") == 0)
 			{
-				SQLCHAR SQLGetNewImportProtocolID[] = "set nocount on declare @RetVal int, @ID DSIDENTIFIER exec @RetVal = ImportProtocol_Insert @ID out, 10000000162, '20171010', '20171010' select @RetVal, @ID ";
+				SQLCHAR SQLGetNewImportProtocolID[] =
+					" set nocount on " 
+					" declare @RetVal int, @ID DSIDENTIFIER, @CurDate DSOPERDAY "
+					" select @CurDate = CONVERT (date, GETDATE())  "
+					" exec @RetVal = ImportProtocol_Insert @ID out, ?, @CurDate, @CurDate " 
+					" select @RetVal, @ID ";
 
 				SQLINTEGER
 					cbRetVal = 0,
 					cbImportProtocolID = 0,
+					cbImportFileID = 0,
 					RetVal = 0;
 
-				double ImportProtocolID;
+				double ImportProtocolID, ImportID;
+
+				ImportID = this->ImportFileID;
+
+				// Bind ImportFileID
+				retcode = SQLBindParameter(
+					hstmt,
+					1,
+					SQL_PARAM_INPUT,
+					SQL_C_DOUBLE,
+					SQL_DOUBLE,
+					15,
+					0,
+					&ImportID,
+					sizeof(ImportID),
+					&cbImportFileID);
+
+				if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
+				{
+					throw SQLException("GetLoadInfo failed! SQLBindParameter(Brief)", retcode);
+				}
 
 				retcode = SQLExecDirect(
 					hstmt,
 					SQLGetNewImportProtocolID,
 					SQL_NTS);
 
-				if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
+				if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO && retcode != SQL_NEED_DATA)
 					throw SQLException("PrepareFormula failed! SQLExecDirect(SQLGetNewImportProtocolID)", retcode);
-
+			
 
 				if (retcode == SQL_SUCCESS)
 				{
@@ -1120,9 +1189,7 @@ void FALoad::PrepareFormula(std::string &Formula, std::vector<Param *> &Params)
 								&cbRetVal);
 
 							if (retcode != SQL_SUCCESS)
-								throw SQLException("PrepareFormula failed! SQLGetData(RetVal)", retcode);
-
-							
+								throw SQLException("PrepareFormula failed! SQLGetData(RetVal)", retcode);							
 
 							// ImportProtocolID							
 							retcode = SQLGetData(
@@ -1165,14 +1232,9 @@ void FALoad::PrepareFormula(std::string &Formula, std::vector<Param *> &Params)
 			}
 			else if (strcmp(Params[i]->CalcField, "Branch") == 0)
 			{
-				// Will be rewrote
-				unsigned long int BranchID;
-
-				std::cout << "\nEnter BranchID: ";
-				std::cin >> BranchID;
 
 				if (Params[i]->CalcProperty == 0)
-				  Params[i]->Value = std::to_string(BranchID);
+				  Params[i]->Value = std::to_string(this->BranchID);
 				else 
 					Params[i]->Value = std::string("'") + std::to_string(BranchID) + std::string("'");
 			}
@@ -1197,7 +1259,9 @@ void FALoad::PrepareFormula(std::string &Formula, std::vector<Param *> &Params)
 
 			finding_str = std::string("%") + std::to_string(static_cast<int>(Params[i]->Number)) + std::string("!");
 
-			std::cout << "\n finding str " << finding_str;
+			if (ShowDiagInfo)
+			  std::cout << "\n finding str " << finding_str;
+
 			int cur_pos = 0;
 
 			while ((cur_pos = Formula.find(finding_str, cur_pos)) != std::string::npos)
@@ -1214,8 +1278,8 @@ void FALoad::PrepareFormula(std::string &Formula, std::vector<Param *> &Params)
 				Formula.insert(0, nocount_on_str);
 
 		}
-
-		std::cout << "\nPrepared formula's text: \n" << Formula;
+		if (ShowDiagInfo)
+		  std::cout << "\nPrepared formula's text: \n" << Formula;
 
 	}
 	catch (SQLException &ex)
