@@ -1,6 +1,6 @@
 // main.cpp 
 // created: 2018-07-21
-// modified:
+// modified: 2018-08-25
 // author: Artyom Panfutov
 
 #include <iostream>
@@ -28,10 +28,10 @@ int main()
 		// SetConsoleOutputCP(866);
 
 		std::cout <<
-			"\n\n***********************************************************************\n"
-			"\n                       Fiora (alpha version)                             "
-			"\n                           Data Loader                                   "
-			"\n\n***********************************************************************\n";
+			"\n\n *******************************************************************************\n"
+			"\n                               Fiora (alpha version)                             "
+			"\n                                   Data Loader                                   "
+			"\n\n *******************************************************************************\n";
 
 		InputAttribute UserInfo;
 		AsyncLoad MainObj(UserInfo.GetOffset());
@@ -91,7 +91,7 @@ int main()
 
 
 			ToDisplay =
-				"\n***********************************************************************\n";
+				"\n *******************************************************************************\n";
 			" The object " + LoadBrief + std::string(" Number: ") + std::to_string(i) + " created! \n\n";
 			MainObj.Message(ToDisplay);
 
@@ -124,9 +124,7 @@ int main()
 
 			ToDisplay = " Preparing of the object " + LoadBrief + std::string(" Number: ") + std::to_string(i) + " is completed!";
 			MainObj.Message(ToDisplay);
-
-			ToDisplay = "\n\n***********************************************************************";
-			MainObj.Message(ToDisplay);
+			
 		}
 
 		fieldterm = std::string(reinterpret_cast<const char *> (MainObj.FALoads.front()->Delimiter));
@@ -134,13 +132,23 @@ int main()
 		FirstRow = 0;
 		LastRow = Batch - 1;
 
+
+		ToDisplay = " *******************************************************************************";
+		MainObj.Message(ToDisplay);
+
+		ToDisplay = " *******************************************************************************";
+		MainObj.Message(ToDisplay);
+
+		ToDisplay = " *******************************************************************************";
+		MainObj.Message(ToDisplay);
+
 		// Execute the setup formula and start BCP.
 		for (int i = 0; i < Threads; i++)
 		{
 			CurrentThread = MainObj.FALoads[i];
 			CurrentThread->ExecuteFormula(CurrentThread->SetupFormulaStr);
 
-			ToDisplay = "\n Start BCP push for the object " + LoadBrief + std::string(" Number: ") + std::to_string(i);
+			ToDisplay = "\n Start BCP push for the object " + LoadBrief + std::string(" Number: ") + std::to_string(i) + "\n Lines [" + std::to_string(FirstRow) + ".." + std::to_string(LastRow) + "]";
 			MainObj.Message(ToDisplay);
 
 			RowsDone = CurrentThread->StartBCP(
@@ -150,7 +158,8 @@ int main()
 				LastRow,
 				DataFile.text_str);
 
-			ToDisplay = "\n BCP load is completed!";
+			ToDisplay = "\n BCP load for object " + LoadBrief + std::string(" Number: ") + std::to_string(i) + " is completed! \n"
+				        "\n *******************************************************************************\n";
 			MainObj.Message(ToDisplay);
 
 			FirstRow = LastRow + 1;

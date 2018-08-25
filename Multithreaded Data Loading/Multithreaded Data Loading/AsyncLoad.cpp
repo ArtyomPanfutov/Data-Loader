@@ -12,7 +12,6 @@
 ***********************************************************************/
 
 
-
 // AsyncLoad constructor
 ////////////////////////////////////////////////////////////////////////
 AsyncLoad::AsyncLoad(unsigned int Time) : OffsetTime(Time)
@@ -55,15 +54,17 @@ void AsyncLoad::RunLoadsInAsyncMode(std::vector <FALoad *> &Loads, unsigned long
 			CurSTMT = Loads[input_i]->GetHSTMT();
 
 			// Set async mode on.
-			sql_retcode = SQLSetStmtAttr(CurSTMT, SQL_ATTR_ASYNC_ENABLE, reinterpret_cast<SQLPOINTER>(SQL_ASYNC_ENABLE_ON), 0);
+			sql_retcode = SQLSetStmtAttr(
+				CurSTMT,
+				SQL_ATTR_ASYNC_ENABLE, 
+				reinterpret_cast<SQLPOINTER>(SQL_ASYNC_ENABLE_ON), 
+				0);
+
 			if (sql_retcode != SQL_SUCCESS && sql_retcode != SQL_SUCCESS_WITH_INFO)
-				throw SQLException("RunLoadsInAsyncMode failed! SQLSetStmtAttr(ASYNC_ENABLE ON)", sql_retcode);
+				throw SQLException("\n ERROR: RunLoadsInAsyncMode failed! SQLSetStmtAttr(ASYNC_ENABLE ON)\n", sql_retcode);
 
 			// Execute all loads in async mode.
-			while ((sql_retcode = SQLExecDirect(
-				CurSTMT,
-				(unsigned char*)Loads[input_i]->LastFormulaStr.c_str(),
-				SQL_NTS)) == SQL_STILL_EXECUTING)
+			while ((sql_retcode = SQLExecDirect(CurSTMT, (unsigned char*)Loads[input_i]->LastFormulaStr.c_str(), SQL_NTS)) == SQL_STILL_EXECUTING)
 			{
 				if (i < CountOfLoads)
 				{
@@ -87,7 +88,7 @@ void AsyncLoad::RunLoadsInAsyncMode(std::vector <FALoad *> &Loads, unsigned long
 						sql_retcode = SQLFetch(CurSTMT);
 
 						if (sql_retcode == SQL_ERROR )
-							throw SQLException("RunLoadsInAsyncMode failed! SQLFetch", sql_retcode);
+							throw SQLException("\n ERROR: RunLoadsInAsyncMode failed! SQLFetch\n", sql_retcode);
 
 						else if (sql_retcode == SQL_SUCCESS)
 						{
@@ -101,7 +102,7 @@ void AsyncLoad::RunLoadsInAsyncMode(std::vector <FALoad *> &Loads, unsigned long
 								&cbRetVal);
 
 							if (sql_retcode != SQL_SUCCESS)
-								throw SQLException("RunLoadsInAsyncMode failed! SQLGetData(RetVal)", sql_retcode);
+								throw SQLException("\n ERROR: RunLoadsInAsyncMode failed! SQLGetData(RetVal)\n", sql_retcode);
 						}
 						else
 							break;
@@ -114,11 +115,11 @@ void AsyncLoad::RunLoadsInAsyncMode(std::vector <FALoad *> &Loads, unsigned long
 
 			sql_retcode = SQLSetStmtAttr(CurSTMT, SQL_ATTR_ASYNC_ENABLE, reinterpret_cast<SQLPOINTER>(SQL_ASYNC_ENABLE_OFF), 0);
 			if (sql_retcode != SQL_SUCCESS && sql_retcode != SQL_SUCCESS_WITH_INFO)
-				throw SQLException("RunLoadsInAsyncMode failed! SQLSetStmtAttr(ASYNC_ENABLE)", sql_retcode);
+				throw SQLException("\n ERROR: RunLoadsInAsyncMode failed! SQLSetStmtAttr(ASYNC_ENABLE)\n", sql_retcode);
 
 			sql_retcode = SQLFreeStmt(CurSTMT, SQL_CLOSE);
 			if (sql_retcode != SQL_SUCCESS && sql_retcode != SQL_SUCCESS_WITH_INFO)
-				throw SQLException("ExecuteFormula failed! SQLFreeStmt failed!", sql_retcode);
+				throw SQLException("\n ERROR: ExecuteFormula failed! SQLFreeStmt failed!\n", sql_retcode);
 
 		
 
@@ -132,14 +133,6 @@ void AsyncLoad::RunLoadsInAsyncMode(std::vector <FALoad *> &Loads, unsigned long
 } // End of RunLoadsInAsyncMode
 //--------------------------------------------------------------------
 
-
-// SetProcessingRange 
-//////////////////////////////////////////////////////////////////////
-void AsyncLoad::SetProcessingRange(unsigned long &range)
-{
-	this->ProcessingRange = range;
-} // End of SetProcessingRange
-//--------------------------------------------------------------------
 
 
 // Message

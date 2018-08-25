@@ -24,7 +24,6 @@ class AsyncLoad
 	  unsigned int OffsetTime;
 
 	  void RunLoadsInAsyncMode(std::vector <FALoad *> &, unsigned long);
-	  void SetProcessingRange(unsigned long &);
 	  void Message(std::string &);
 
 };

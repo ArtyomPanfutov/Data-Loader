@@ -1,6 +1,6 @@
 // FALoad.cpp
 // created: 2018-07-22
-// modified:
+// modified: 2018-08-25
 // author: Artyom Panfutov
 
 #include "FALoad.h"
@@ -19,14 +19,12 @@
 FALoad::FALoad(std::string &filename, bool ShowDiag, unsigned long Branch) : Connection() 
 {  
 	
-
 	this->ShowDiagInfo = ShowDiag;
 
 	this->BranchID = Branch;
 
-	this->FileName = filename; // For formula paramter(FileName)
+	this->FileName = filename; // For formula parameter(FileName)
 
-	
 }
 // End of constructor FALoader()
 // ---------------------------------------------------------------------
@@ -78,16 +76,16 @@ FALoad::~FALoad(void)
 ////////////////////////////////////////////////////////////////////////
 void FALoad::GetLoadInfo()
 {
-	SQLCHAR SQLGetLoadInfo[] = "select ImportFileID,\
-		                               ltrim(rtrim(Delimiter)),\
-                                       PathInput,\
-                                       PathOutput,\
-                                       ParamList,\
-                                       OEMToANSI,\
-                                       SetupFormula,\
-                                       LastFormula\
-                                  from tImportFile with (nolock)\
-                                 where Brief like ? and ImportType = 5";
+	SQLCHAR SQLGetLoadInfo[] = " select ImportFileID, "
+		                              " ltrim(rtrim(Delimiter)), "
+                                      " PathInput, "
+                                      " PathOutput, "
+                                      " ParamList, "
+                                      " OEMToANSI, "
+                                      " SetupFormula, "
+                                      " LastFormula "
+                                 " from tImportFile with (nolock) "
+                                " where Brief like ? and ImportType = 5 ";
 	
 
 	SQLINTEGER
@@ -119,7 +117,7 @@ void FALoad::GetLoadInfo()
 
 		if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
 		{
-			throw SQLException("GetLoadInfo failed! SQLBindParameter(Brief)", retcode);
+			throw SQLException("\n ERROR: GetLoadInfo failed! SQLBindParameter(Brief)\n", retcode);
 		}
 		
 		retcode = SQLExecDirect( hstmt, 
@@ -128,20 +126,18 @@ void FALoad::GetLoadInfo()
 		
 		if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
 		{
-			throw SQLException("GetLoadInfo failed! SQLExecDirect(SQLGetLoadInfo)", retcode);
+			throw SQLException("\n ERROR: GetLoadInfo failed! SQLExecDirect(SQLGetLoadInfo)\n", retcode);
 		}
 		
 		if (retcode == SQL_SUCCESS)
 		{
 			
-
-				
 			while (TRUE)
 			{
 				retcode = SQLFetch(hstmt);
 				if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO)
 				{
-					throw SQLException("GetLoadInfo failed! SQLFetch", retcode);
+					throw SQLException("\n ERROR: GetLoadInfo failed! SQLFetch\n", retcode);
 				}
 
 				else if (retcode == SQL_SUCCESS)
@@ -155,7 +151,7 @@ void FALoad::GetLoadInfo()
 						                  &cbImportFileID );
 
 					if (retcode != SQL_SUCCESS)
-						throw SQLException("GetLoadInfo failed! SQLGetData(ImportFileID)", retcode);
+						throw SQLException("\n ERROR: GetLoadInfo failed! SQLGetData(ImportFileID)\n", retcode);
 
 					// Delimiter										
 					retcode = SQLGetData( hstmt,
@@ -166,7 +162,7 @@ void FALoad::GetLoadInfo()
 										  &cbDelimiter );
 
 					if (retcode != SQL_SUCCESS)
-						throw SQLException("GetLoadInfo failed! SQLGetData(Delimiter)", retcode);
+						throw SQLException("\n ERROR: GetLoadInfo failed! SQLGetData(Delimiter)\n", retcode);
 
 					// PathInput									
 					retcode = SQLGetData( hstmt,
@@ -177,7 +173,7 @@ void FALoad::GetLoadInfo()
 						                  &cbPathInput );
 
 					if (retcode != SQL_SUCCESS)
-						throw SQLException("GetLoadInfo failed! SQLGetData(PathInput)", retcode);
+						throw SQLException("\n ERROR: GetLoadInfo failed! SQLGetData(PathInput)\n", retcode);
 
 					// PathOutput								
 					retcode = SQLGetData( hstmt,
@@ -188,7 +184,7 @@ void FALoad::GetLoadInfo()
 						                  &cbPathOutput );
 
 					if (retcode != SQL_SUCCESS)
-						throw SQLException("GetLoadInfo failed! SQLGetData(PathOutput)", retcode);
+						throw SQLException("\n ERROR: GetLoadInfo failed! SQLGetData(PathOutput)\n", retcode);
 
 					// ParamList							
 					retcode = SQLGetData( hstmt,
@@ -199,7 +195,7 @@ void FALoad::GetLoadInfo()
 						                  &cbParamList );
 
 					if (retcode != SQL_SUCCESS)
-						throw SQLException("GetLoadInfo failed! SQLGetData(ParamList)", retcode);
+						throw SQLException("\n ERROR: GetLoadInfo failed! SQLGetData(ParamList)\n", retcode);
 
 					// OEMToANSI
 					retcode = SQLGetData( hstmt,
@@ -210,7 +206,7 @@ void FALoad::GetLoadInfo()
 						                  &cbOEMToANSI);
 
 					if (retcode != SQL_SUCCESS)
-						throw SQLException("GetLoadInfo failed! SQLGetData(OEMToANSI)", retcode);
+						throw SQLException("\n ERROR: GetLoadInfo failed! SQLGetData(OEMToANSI)\n", retcode);
 
 					// SetupFormula
 					retcode = SQLGetData( hstmt,
@@ -221,7 +217,7 @@ void FALoad::GetLoadInfo()
 						                  &cbSetupFormula );
 
 					if (retcode != SQL_SUCCESS)
-						throw SQLException("GetLoadInfo failed! SQLGetData(SetupFormula)", retcode);
+						throw SQLException("\n ERROR: GetLoadInfo failed! SQLGetData(SetupFormula)\n", retcode);
 
 					// LastFormula
 					retcode = SQLGetData( hstmt,
@@ -232,7 +228,7 @@ void FALoad::GetLoadInfo()
 						                  &cbLastFormula );
 
 					if (retcode != SQL_SUCCESS)
-						throw SQLException("GetLoadInfo failed! SQLGetData(LastFormula)", retcode);
+						throw SQLException("\n ERROR: GetLoadInfo failed! SQLGetData(LastFormula)\n", retcode);
 
 					if (ShowDiagInfo)
 					{
@@ -256,12 +252,12 @@ void FALoad::GetLoadInfo()
 
 		}
 		else
-			throw SQLException("GetLoadInfo failed!", retcode);
+			throw SQLException("\n ERROR: GetLoadInfo failed!\n", retcode);
 
 		retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
 
 		if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
-			throw SQLException("GetLoadInfo failed! SQLFreeStmt failed!", retcode);
+			throw SQLException("\n ERROR: GetLoadInfo failed! SQLFreeStmt failed!\n", retcode);
 
 		this->GetFormulaText(hstmt, SetupFormula, SetupFormulaStr);
 		this->GetFormulaText(hstmt, LastFormula, LastFormulaStr);
@@ -307,9 +303,8 @@ void FALoad::SetLoadBrief(std::string &Brief)
 
 // ShowLoadBrief()
 ///////////////////////////////////////////////////////////////////////
-void FALoad::ShowLoadBrief()
+inline void FALoad::ShowLoadBrief()
 {
-	//setlocale(LC_ALL, "Russian");
 	  std::cout << "\n Сокращение загрузки: " << this->LoadBrief;
 } // End of ShowLoadBrief()
 //--------------------------------------------------------------------
@@ -319,13 +314,13 @@ void FALoad::ShowLoadBrief()
 //////////////////////////////////////////////////////////////////////
 void FALoad::GetDSTypesFromDB()
 {
-  SQLCHAR SQLGetDSTypes[] = " \
-	                        select s.name,\
-                                    s.length,\
-                                    s.prec\
-	                          from systypes s with (nolock)\
-                             inner join tDSType d with (nolock)\
-                                     on s.name = d.typename";
+  SQLCHAR SQLGetDSTypes[] = 
+	                       " select s.name, "
+                                  " s.length, "
+                                  " s.prec "
+	                         " from systypes s with (nolock) "
+                            " inner join tDSType d with (nolock) "
+                                   "  on s.name = d.typename ";
 	  
   SQLINTEGER cbName,
 	         cbLength,
@@ -339,7 +334,7 @@ void FALoad::GetDSTypesFromDB()
 
     if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
     {
-	  throw SQLException("GetDSTypesFromDB faled! SQLExecDirect(SQLGetDSTypes)", retcode);
+	  throw SQLException("\n ERROR: GetDSTypesFromDB faled! SQLExecDirect(SQLGetDSTypes)\n", retcode);
     }
 
     if (retcode == SQL_SUCCESS)
@@ -349,7 +344,7 @@ void FALoad::GetDSTypesFromDB()
 		  retcode = SQLFetch(hstmt);
 		  if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO)
 		  {
-			  throw SQLException("GetDSTypesFromDB failed! SQLFetch", retcode);
+			  throw SQLException("\n ERROR: GetDSTypesFromDB failed! SQLFetch\n", retcode);
 		  }
 
 		  else if (retcode == SQL_SUCCESS)
@@ -365,7 +360,7 @@ void FALoad::GetDSTypesFromDB()
 				                    &cbName );
 
 			  if (retcode != SQL_SUCCESS)
-				  throw SQLException("GetDSTypesFromDB failed! SQLGetData(Name)", retcode);
+				  throw SQLException("\n ERROR: GetDSTypesFromDB failed! SQLGetData(Name)\n", retcode);
 
 			  // Length
 			  retcode = SQLGetData( hstmt,
@@ -376,7 +371,7 @@ void FALoad::GetDSTypesFromDB()
 				                    &cbLength );
 
 			  if (retcode != SQL_SUCCESS)
-				  throw SQLException("GetDSTypesFromDB failed! SQLGetData(Length)", retcode);
+				  throw SQLException("\n ERROR: GetDSTypesFromDB failed! SQLGetData(Length)\n", retcode);
 
 			  // Precision
 			  retcode = SQLGetData( hstmt,
@@ -387,7 +382,7 @@ void FALoad::GetDSTypesFromDB()
 				                    &cbPrec );
 
 			  if (retcode != SQL_SUCCESS)
-				  throw SQLException("GetDSTypesFromDB failed! SQLGetData(Precision)", retcode);
+				  throw SQLException("\n ERROR: GetDSTypesFromDB failed! SQLGetData(Precision)\n", retcode);
 
 			  /*std::cout.setf(std::ios::fixed);
 			  std::cout << "\n Name " << DSTypes.back()->Name;
@@ -402,13 +397,13 @@ void FALoad::GetDSTypesFromDB()
 
     }
     else
-	  throw SQLException("GetLoadInfo failed!", retcode);
+	  throw SQLException("\n ERROR: GetLoadInfo failed!\n", retcode);
 
 
     retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
 
     if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
-	  throw SQLException("GetDSTypeFromDB failed! SQLFreeStmt failed!", retcode);
+	  throw SQLException("\n ERROR: GetDSTypeFromDB failed! SQLFreeStmt failed!\n", retcode);
   }
   catch (SQLException &ex)
   {
@@ -430,15 +425,13 @@ void FALoad::GetDSTypesFromDB()
 		  {
 			  DSCOMMENT_Length = DSTypes[i]->Length;
 		  }
-
-
 	  }
 
 	  if (DSBRIEFNAME_Length < 0)
-		  throw std::exception("\nType DSBRIEFNAME has incorrect length!\n");
+		  throw std::exception("\n ERROR:  Type DSBRIEFNAME has incorrect length!\n");
 
 	  if (DSCOMMENT_Length < 0)
-		  throw std::exception("\nType DSCOMMENT has incorrect length!\n");
+		  throw std::exception("\n ERROR: Type DSCOMMENT has incorrect length!\n");
   }
   catch (std::exception &ex)
   {
@@ -451,7 +444,7 @@ void FALoad::GetDSTypesFromDB()
 
 // GetType()
 ///////////////////////////////////////////////////////////////////////////////////
-char * DSType::GetType()
+inline char * DSType::GetType()
 {
 	return Name;
 } // End of GetType()
@@ -462,10 +455,10 @@ char * DSType::GetType()
 ///////////////////////////////////////////////////////////////////////////////////
 void FALoad::GetFormulaText(SQLHSTMT &hstmt, double &FormulaID, std::string &QueryStr)
 {
-	SQLCHAR SQLGetQueryStr[] = "select QueryStr\
-                                  from tQueryLine with (nolock index = XPKtQueryLine)\
- 		                         where Type = 1\
-		                           and ContextID = ?";
+	SQLCHAR SQLGetQueryStr[] = " select QueryStr "
+                                 " from tQueryLine with (nolock index = XPKtQueryLine) "
+ 		                        " where Type = 1 "
+		                          " and ContextID = ? ";
 
 	SQLINTEGER
 		cbFormulaID = SQL_NTS,
@@ -490,7 +483,7 @@ void FALoad::GetFormulaText(SQLHSTMT &hstmt, double &FormulaID, std::string &Que
 
 		if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
 		{
-			throw SQLException("GetFormulaText failed! SQLBindParameter(FormulaID)", retcode);
+			throw SQLException("\n ERROR: GetFormulaText failed! SQLBindParameter(FormulaID)\n", retcode);
 		}
 
 		retcode = SQLExecDirect(
@@ -500,7 +493,7 @@ void FALoad::GetFormulaText(SQLHSTMT &hstmt, double &FormulaID, std::string &Que
 
 		if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
 		{
-			throw SQLException("GetFormulaText failed! SQLExecDirect(SQLGetQueryStr)", retcode);
+			throw SQLException("\n ERROR: GetFormulaText failed! SQLExecDirect(SQLGetQueryStr)\n", retcode);
 		}
 
 		if (retcode == SQL_SUCCESS)
@@ -510,7 +503,7 @@ void FALoad::GetFormulaText(SQLHSTMT &hstmt, double &FormulaID, std::string &Que
 				retcode = SQLFetch(hstmt);
 				if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO)
 				{
-					throw SQLException("GetFormulaText failed! SQLFetch", retcode);
+					throw SQLException("\n ERROR: GetFormulaText failed! SQLFetch\n", retcode);
 				}
 
 				else if (retcode == SQL_SUCCESS)
@@ -525,7 +518,7 @@ void FALoad::GetFormulaText(SQLHSTMT &hstmt, double &FormulaID, std::string &Que
 						&cbQueryStr);
 
 					if (retcode != SQL_SUCCESS)
-						throw SQLException("GetFormulaText failed! SQLGetData(QueryStr)", retcode);
+						throw SQLException("\n ERROR: GetFormulaText failed! SQLGetData(QueryStr)\n", retcode);
 
 					if (strcmp((const char *)SingleStr, "SQL:") != 0) // Ingore first row "SQL:" from formula's text
 					{
@@ -542,7 +535,7 @@ void FALoad::GetFormulaText(SQLHSTMT &hstmt, double &FormulaID, std::string &Que
 		retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
 
 		if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
-			throw SQLException("GetFormulaText failed! SQLFreeStmt failed!", retcode);
+			throw SQLException("\n ERROR: GetFormulaText failed! SQLFreeStmt failed!\n", retcode);
 	}
 	catch (SQLException &ex)
 	{
@@ -552,15 +545,16 @@ void FALoad::GetFormulaText(SQLHSTMT &hstmt, double &FormulaID, std::string &Que
 //---------------------------------------------------------------------------------
 
 
+
 // GetSetupParamsFromDB
 ///////////////////////////////////////////////////////////////////////////////////
 void FALoad::GetSetupParamsFromDB()
 {
-	SQLCHAR SQLGetSetupFormulaParams[] = "select Number,\
-                                            CalcField,\
-                                            CalcProperty\
-                                       from tParam with (nolock index = XPKtParam)\
- 		                              where FormulaID = ?";
+	SQLCHAR SQLGetSetupFormulaParams[] = " select Number, "
+                                                " CalcField,"
+                                                " CalcProperty "
+                                           " from tParam with (nolock index = XPKtParam) "
+ 		                                   " where FormulaID = ? ";
 
 	SQLINTEGER
 		cbFormulaID = SQL_NTS,
@@ -584,7 +578,7 @@ void FALoad::GetSetupParamsFromDB()
 
 		if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
 		{
-			throw SQLException("GetSetupParamsFromDB failed! SQLBindParameter(FormulaID)", retcode);
+			throw SQLException("\n ERROR:  GetSetupParamsFromDB failed! SQLBindParameter(FormulaID)\n", retcode);
 		}
 
 		retcode = SQLExecDirect(
@@ -594,7 +588,7 @@ void FALoad::GetSetupParamsFromDB()
 
 		if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
 		{
-			throw SQLException("GetSetupParamsFromDB failed! SQLExecDirect(SQLGetFormulaParams)", retcode);
+			throw SQLException("\n ERROR: GetSetupParamsFromDB failed! SQLExecDirect(SQLGetFormulaParams)\n", retcode);
 		}
 
 		if (retcode == SQL_SUCCESS)
@@ -604,7 +598,7 @@ void FALoad::GetSetupParamsFromDB()
 				retcode = SQLFetch(hstmt);
 				if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO)
 				{
-					throw SQLException("GetSetupParamsFromDB failed! SQLFetch", retcode);
+					throw SQLException("\n ERROR: GetSetupParamsFromDB failed! SQLFetch\n", retcode);
 				}
 
 				else if (retcode == SQL_SUCCESS)
@@ -621,7 +615,7 @@ void FALoad::GetSetupParamsFromDB()
 						&cbNumber);
 
 					if (retcode != SQL_SUCCESS)
-						throw SQLException("GetSetupParamsFromDB failed! SQLGetData(Number)", retcode);
+						throw SQLException("\n ERROR: GetSetupParamsFromDB failed! SQLGetData(Number)\n", retcode);
 
 					// CalcField								
 					retcode = SQLGetData(
@@ -633,7 +627,7 @@ void FALoad::GetSetupParamsFromDB()
 						&cbCalcField);
 
 					if (retcode != SQL_SUCCESS)
-						throw SQLException("GetSetupParamsFromDB failed! SQLGetData(CalcField)", retcode);
+						throw SQLException("\n ERROR: GetSetupParamsFromDB failed! SQLGetData(CalcField)\n", retcode);
 
 					// CalcProperty
 					retcode = SQLGetData(
@@ -645,7 +639,7 @@ void FALoad::GetSetupParamsFromDB()
 						&cbCalcProperty);
 
 					if (retcode != SQL_SUCCESS)
-						throw SQLException("GetSetupParamsFromDB failed! SQLGetData(CalcProperty)", retcode);
+						throw SQLException("\n ERROR: GetSetupParamsFromDB failed! SQLGetData(CalcProperty)\n", retcode);
 			
 				}
 				else
@@ -656,7 +650,7 @@ void FALoad::GetSetupParamsFromDB()
 		retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
 
 		if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
-			throw SQLException("GetSetupParamsFromDB failed! SQLFreeStmt failed!", retcode);
+			throw SQLException("\n ERROR: GetSetupParamsFromDB failed! SQLFreeStmt failed!\n", retcode);
 	}
 	catch (SQLException &ex)
 	{
@@ -670,11 +664,11 @@ void FALoad::GetSetupParamsFromDB()
   ///////////////////////////////////////////////////////////////////////////////////
 void FALoad::GetLastParamsFromDB()
 {
-	SQLCHAR SQLGetLastFormulaParams[] = "select Number,\
-                                            CalcField,\
-                                            CalcProperty\
-                                       from tParam with (nolock index = XPKtParam)\
- 		                              where FormulaID = ?";
+	SQLCHAR SQLGetLastFormulaParams[] = " select Number, "
+                                               " CalcField, "
+                                               " CalcProperty "
+                                         " from tParam with (nolock index = XPKtParam) "
+ 		                                " where FormulaID = ? ";
 
 	SQLINTEGER
 		cbFormulaID = SQL_NTS,
@@ -698,7 +692,7 @@ void FALoad::GetLastParamsFromDB()
 
 		if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
 		{
-			throw SQLException("GetLastParamsFromDB failed! SQLBindParameter(FormulaID)", retcode);
+			throw SQLException("\n ERROR: GetLastParamsFromDB failed! SQLBindParameter(FormulaID)\n", retcode);
 		}
 
 		retcode = SQLExecDirect(
@@ -708,7 +702,7 @@ void FALoad::GetLastParamsFromDB()
 
 		if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
 		{
-			throw SQLException("GetLastParamsFromDB failed! SQLExecDirect(SQLGetFormulaParams)", retcode);
+			throw SQLException("\n ERROR: GetLastParamsFromDB failed! SQLExecDirect(SQLGetFormulaParams)\n", retcode);
 		}
 
 		if (retcode == SQL_SUCCESS)
@@ -718,7 +712,7 @@ void FALoad::GetLastParamsFromDB()
 				retcode = SQLFetch(hstmt);
 				if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO)
 				{
-					throw SQLException("GetLastParamsFromDB failed! SQLFetch", retcode);
+					throw SQLException("\n ERROR: GetLastParamsFromDB failed! SQLFetch\n", retcode);
 				}
 
 				else if (retcode == SQL_SUCCESS)
@@ -735,7 +729,7 @@ void FALoad::GetLastParamsFromDB()
 						&cbNumber);
 
 					if (retcode != SQL_SUCCESS)
-						throw SQLException("GetLastParamsFromDB failed! SQLGetData(Number)", retcode);
+						throw SQLException("\n ERROR: GetLastParamsFromDB failed! SQLGetData(Number)\n", retcode);
 
 					// CalcField								
 					retcode = SQLGetData(
@@ -747,7 +741,7 @@ void FALoad::GetLastParamsFromDB()
 						&cbCalcField);
 
 					if (retcode != SQL_SUCCESS)
-						throw SQLException("GetLastParamsFromDB failed! SQLGetData(CalcField)", retcode);
+						throw SQLException("\n ERROR: GetLastParamsFromDB failed! SQLGetData(CalcField)\n", retcode);
 
 					// CalcProperty
 					retcode = SQLGetData(
@@ -759,7 +753,7 @@ void FALoad::GetLastParamsFromDB()
 						&cbCalcProperty);
 
 					if (retcode != SQL_SUCCESS)
-						throw SQLException("GetLastParamsFromDB failed! SQLGetData(CalcProperty)", retcode);
+						throw SQLException("\n ERROR: GetLastParamsFromDB failed! SQLGetData(CalcProperty)\n", retcode);
 
 				}
 				else
@@ -770,7 +764,7 @@ void FALoad::GetLastParamsFromDB()
 		retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
 
 		if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
-			throw SQLException("GetLastParamsFromDB failed! SQLFreeStmt failed!", retcode);
+			throw SQLException("\n ERROR: GetLastParamsFromDB failed! SQLFreeStmt failed!\n", retcode);
 	}
 	catch (SQLException &ex)
 	{
@@ -783,10 +777,10 @@ void FALoad::GetLastParamsFromDB()
 
 // GetInfo
 ///////////////////////////////////////////////////////////////////////////////////
-void GetInfo(std::string &CalcField, unsigned int &CalcProperty)
+inline void GetInfo(std::string &CalcField, unsigned int &CalcProperty)
 {
 	
-
+ // What is it?
 
 } // End of GetInfo
 //---------------------------------------------------------------------------------
@@ -832,7 +826,7 @@ void FALoad::GetTableColumnsFromDB()
 			&cbParamList);
 
 		if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
-			throw SQLException("GetTableColumnsFromDB failed! SQLBindParameter(ParamList)", retcode);
+			throw SQLException("\n ERROR: GetTableColumnsFromDB failed! SQLBindParameter(ParamList)\n", retcode);
 	
 
 		retcode = SQLExecDirect(
@@ -841,7 +835,7 @@ void FALoad::GetTableColumnsFromDB()
 			SQL_NTS);
 
 		if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
-			throw SQLException("GetTableColumnsFromDB failed! SQLExecDirect(SQLGetColumns)", retcode);
+			throw SQLException("\n ERROR: GetTableColumnsFromDB failed! SQLExecDirect(SQLGetColumns)\n", retcode);
 		
 
 		if (retcode == SQL_SUCCESS)
@@ -851,7 +845,7 @@ void FALoad::GetTableColumnsFromDB()
 				retcode = SQLFetch(hstmt);
 				if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO)
 				{
-					throw SQLException("GetTableColumnsFromDB failed! SQLFetch", retcode);
+					throw SQLException("\n ERROR: GetTableColumnsFromDB failed! SQLFetch\n", retcode);
 				}
 
 				else if (retcode == SQL_SUCCESS)
@@ -866,7 +860,7 @@ void FALoad::GetTableColumnsFromDB()
 						&cbTableColumns);
 
 					if (retcode != SQL_SUCCESS)
-						throw SQLException("GetTableColumnsFromDB failed! SQLGetData(Number)", retcode);
+						throw SQLException("\n ERROR: GetTableColumnsFromDB failed! SQLGetData(Number)\n", retcode);
 				}
 				else
 					break;
@@ -876,7 +870,7 @@ void FALoad::GetTableColumnsFromDB()
 		retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
 
 		if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
-			throw SQLException("GetTableColumnsFromDB failed! SQLFreeStmt failed!", retcode);
+			throw SQLException("\n ERROR: GetTableColumnsFromDB failed! SQLFreeStmt failed!\n", retcode);
 
 
 		// 2. Get length for each column
@@ -893,7 +887,7 @@ void FALoad::GetTableColumnsFromDB()
 			&cbParamList);
 
 		if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
-			throw SQLException("GetTableColumnsFromDB failed! SQLBindParameter(ParamList)", retcode);
+			throw SQLException("\n ERROR: GetTableColumnsFromDB failed! SQLBindParameter(ParamList)\n", retcode);
 
 
 		retcode = SQLExecDirect(
@@ -902,7 +896,7 @@ void FALoad::GetTableColumnsFromDB()
 			SQL_NTS);
 
 		if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
-			throw SQLException("GetTableColumnsFromDB failed! SQLExecDirect(SQLGetLengthColumn)", retcode);
+			throw SQLException("\n ERROR: GetTableColumnsFromDB failed! SQLExecDirect(SQLGetLengthColumn)\n", retcode);
 
 		if (retcode == SQL_SUCCESS)
 		{    
@@ -919,7 +913,7 @@ void FALoad::GetTableColumnsFromDB()
 				retcode = SQLFetch(hstmt);
 				if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO)
 				{
-					throw SQLException("GetTableColumnsFromDB failed! SQLFetch", retcode);
+					throw SQLException("\n ERROR: GetTableColumnsFromDB failed! SQLFetch\n", retcode);
 				}
 
 				else if (retcode == SQL_SUCCESS)
@@ -934,7 +928,7 @@ void FALoad::GetTableColumnsFromDB()
 						&cbTableColumns);
 
 					if (retcode != SQL_SUCCESS)
-						throw SQLException("GetTableColumnsFromDB failed! SQLGetData(Length)", retcode);
+						throw SQLException("\n ERROR: GetTableColumnsFromDB failed! SQLGetData(Length)\n", retcode);
 
 					// Scale
 					retcode = SQLGetData(
@@ -946,7 +940,7 @@ void FALoad::GetTableColumnsFromDB()
 						&cbColumnScale);
 
 					if (retcode != SQL_SUCCESS)
-						throw SQLException("GetTableColumnsFromDB failed! SQLGetData(Length)", retcode);
+						throw SQLException("\n ERROR: GetTableColumnsFromDB failed! SQLGetData(Length)\n", retcode);
 
 					if (ColumnScale == 0)
 						IsNumeric[i] = false;
@@ -963,7 +957,7 @@ void FALoad::GetTableColumnsFromDB()
 		retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
 
 		if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
-			throw SQLException("GetTableColumnsFromDB failed! SQLFreeStmt failed!", retcode);
+			throw SQLException("\n ERROR: GetTableColumnsFromDB failed! SQLFreeStmt failed!\n", retcode);
 		
 	}
 	catch (SQLException &ex)
@@ -1009,7 +1003,7 @@ unsigned long FALoad::StartBCP(std::string &fieldterm_str, std::string &rowterm_
 		// Initialize the bulk copy.  
 		retcode = bcp_init(hdbc, (const char*)ParamList, NULL, "bcp_log.txt", DB_IN);
 		if (retcode != SUCCEED)
-			throw SQLException("StartBCP failed! bcp_init", retcode);
+			throw SQLException("\n ERROR: StartBCP failed! bcp_init\n", retcode);
 
 
 		// Set code page.
@@ -1019,7 +1013,7 @@ unsigned long FALoad::StartBCP(std::string &fieldterm_str, std::string &rowterm_
 			retcode = bcp_control(hdbc, BCPFILECP, (void *)BCPFILECP_OEMCP);
 
 		if (retcode == FAIL)
-			throw SQLException("StartBCP failed! bcp_control(CP)", retcode);
+			throw SQLException("\n ERROR: StartBCP failed! bcp_control(CP)\n", retcode);
 		
 		// Bind a variables to a table columns.
 		for (int i = 0; i < TableColumns; i++)
@@ -1046,7 +1040,7 @@ unsigned long FALoad::StartBCP(std::string &fieldterm_str, std::string &rowterm_
 					i + 1);
 
 			if ((retcode != SUCCEED))
-				throw SQLException("StartBCP failed! bcp_bind", retcode);
+				throw SQLException("\n ERROR: StartBCP failed! bcp_bind\n", retcode);
 		}
 
 
@@ -1127,7 +1121,7 @@ unsigned long FALoad::StartBCP(std::string &fieldterm_str, std::string &rowterm_
 			if (SendRet != SUCCEED)
 			{
 				//throw SQLException("\n bcp_sendrow failed! retcode:", SendRet);
-				std::cout << "\n bcp_sendrow failed! retcode: " << SendRet;
+				std::cout << "\n ERROR:  bcp_sendrow failed! retcode: " << SendRet;
 			}	
 			str_num++;
 		}
@@ -1136,7 +1130,7 @@ unsigned long FALoad::StartBCP(std::string &fieldterm_str, std::string &rowterm_
 		cRowsDone = bcp_done(hdbc);
 		if ((cRowsDone == -1)) 
 		{
-			std::cout << "\n bcp_done(hdbc) Failed\n\n";			
+			std::cout << "\n ERROR:  bcp_done(hdbc) Failed\n\n";			
 		}
 
 		std::cout << "\n\n rows copied: " << cRowsDone << std::endl;
@@ -1156,7 +1150,51 @@ unsigned long FALoad::StartBCP(std::string &fieldterm_str, std::string &rowterm_
 void FALoad::PrepareFormula(std::string &Formula, std::vector<Param *> &Params)
 {
 	try
-	{
+	{ 
+		// Delete comments from the formula.
+		size_t
+			BeginCommentSymPos = 0,
+			EndCommentSymPos = 0,
+			OneLineCommentSymPos = 0,
+			EndLinePos = 0;
+
+		std::string
+			BeginCommentSym = "/*",
+			EndCommentSym = "*/",
+			OneLineCommentSym = "--";
+
+		while ((BeginCommentSymPos = Formula.find(BeginCommentSym, BeginCommentSymPos)) != std::string::npos)
+		{
+			EndCommentSymPos = BeginCommentSymPos;
+
+			while ((EndCommentSymPos = Formula.find(EndCommentSym, EndCommentSymPos)) != std::string::npos)
+			{				
+				Formula.erase(BeginCommentSymPos, EndCommentSymPos - BeginCommentSymPos + 2);
+				BeginCommentSymPos += EndCommentSymPos;
+
+				break;
+			}
+
+			if (BeginCommentSymPos == EndCommentSymPos)
+				EndCommentSymPos = Formula.length() - 1;
+
+			BeginCommentSymPos++;
+		}
+
+
+		while ((OneLineCommentSymPos = Formula.find(OneLineCommentSym, OneLineCommentSymPos)) != std::string::npos)
+		{
+			EndLinePos = 0;
+			while ((EndLinePos = Formula.find("\n", OneLineCommentSymPos)) != std::string::npos)
+			{
+				Formula.erase(OneLineCommentSymPos, EndLinePos - OneLineCommentSymPos);
+				OneLineCommentSymPos = EndLinePos;
+				break;
+			}
+			
+			OneLineCommentSymPos++;
+		}
+
 		for (int i = 0; i < Params.size(); i++)
 		{
 			if (strcmp(Params[i]->CalcField, "DealProtocolID") == 0)
@@ -1193,7 +1231,7 @@ void FALoad::PrepareFormula(std::string &Formula, std::vector<Param *> &Params)
 
 				if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
 				{
-					throw SQLException("GetLoadInfo failed! SQLBindParameter(Brief)", retcode);
+					throw SQLException("\n ERROR: GetLoadInfo failed! SQLBindParameter(Brief)\n", retcode);
 				}
 
 				retcode = SQLExecDirect(
@@ -1202,7 +1240,7 @@ void FALoad::PrepareFormula(std::string &Formula, std::vector<Param *> &Params)
 					SQL_NTS);
 
 				if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO && retcode != SQL_NEED_DATA)
-					throw SQLException("PrepareFormula failed! SQLExecDirect(SQLGetNewImportProtocolID)", retcode);
+					throw SQLException("\n ERROR: PrepareFormula failed! SQLExecDirect(SQLGetNewImportProtocolID)\n", retcode);
 			
 
 				if (retcode == SQL_SUCCESS)
@@ -1212,7 +1250,7 @@ void FALoad::PrepareFormula(std::string &Formula, std::vector<Param *> &Params)
 						retcode = SQLFetch(hstmt);
 						if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO)
 						{
-							throw SQLException("PrepareFormula failed! SQLFetch", retcode);
+							throw SQLException("\n ERROR: PrepareFormula failed! SQLFetch\n", retcode);
 						}
 
 						else if (retcode == SQL_SUCCESS)
@@ -1227,7 +1265,7 @@ void FALoad::PrepareFormula(std::string &Formula, std::vector<Param *> &Params)
 								&cbRetVal);
 
 							if (retcode != SQL_SUCCESS)
-								throw SQLException("PrepareFormula failed! SQLGetData(RetVal)", retcode);							
+								throw SQLException("\n ERROR: PrepareFormula failed! SQLGetData(RetVal)\n", retcode);							
 
 							// ImportProtocolID							
 							retcode = SQLGetData(
@@ -1239,7 +1277,7 @@ void FALoad::PrepareFormula(std::string &Formula, std::vector<Param *> &Params)
 								&cbImportProtocolID);
 
 							if (retcode != SQL_SUCCESS)
-								throw SQLException("PrepareFormula failed! SQLGetData(ImportProtocolID)", retcode);
+								throw SQLException("\n ERROR: PrepareFormula failed! SQLGetData(ImportProtocolID)\n", retcode);
 						}
 						else
 							break;
@@ -1248,12 +1286,12 @@ void FALoad::PrepareFormula(std::string &Formula, std::vector<Param *> &Params)
 
 				SQLRETURN closeCursRet = SQLCloseCursor(hstmt);
 				if (closeCursRet != SQL_SUCCESS)
-					throw SQLException("PrepareFormumla failed! SQLCloseCursor", retcode);
+					throw SQLException("\n ERROR: PrepareFormumla failed! SQLCloseCursor\n", retcode);
 
 				retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
 
 				if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
-					throw SQLException("PrepareFormula failed! SQLFreeStmt failed!", retcode);
+					throw SQLException("\n ERROR: PrepareFormula failed! SQLFreeStmt failed!\n", retcode);
 
 				// Check @RetVal 
 				if (RetVal == 0)
@@ -1264,7 +1302,7 @@ void FALoad::PrepareFormula(std::string &Formula, std::vector<Param *> &Params)
 					Params[i]->Value.erase(pos, Params[i]->Value.length() - pos);
 				}
 				else
-					throw SQLException("ImportProtocol_Insert returned retval!", retcode);
+					throw SQLException("\n ERROR: ImportProtocol_Insert returned retval!\n", retcode);
 
 			
 			}
@@ -1311,8 +1349,8 @@ void FALoad::PrepareFormula(std::string &Formula, std::vector<Param *> &Params)
 			cur_pos = 0;
 
             // Set nocount setting, if not setted.
-			std::string nocount_on_str = "set nocount on ";
-			if (cur_pos = Formula.find(nocount_on_str, cur_pos) == 0)
+			std::string nocount_on_str = " set nocount on ";
+			if (cur_pos = Formula.find(nocount_on_str, cur_pos) == std::string::npos)
 				Formula.insert(0, nocount_on_str);
 
 		}
@@ -1348,7 +1386,7 @@ void FALoad::ExecuteFormula(std::string &Formula)
 			SQL_NTS);
 
 		if (retcode != SQL_SUCCESS && retcode != SQL_NO_DATA)
-			throw SQLException("ExecuteFormula failed! SQLExecDirect(SQLFormula)", retcode);	
+			throw SQLException("\n ERROR: ExecuteFormula failed! SQLExecDirect(SQLFormula)\n", retcode);	
 	
 		do 
 		{  
@@ -1359,7 +1397,7 @@ void FALoad::ExecuteFormula(std::string &Formula)
 					retcode = SQLFetch(hstmt);
 
 					if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO)
-						throw SQLException("ExecuteFormula failed! SQLFetch", retcode);
+						throw SQLException("\n ERROR: ExecuteFormula failed! SQLFetch\n", retcode);
 					else if (retcode == SQL_SUCCESS)
 					{
 						// RetVal
@@ -1372,7 +1410,7 @@ void FALoad::ExecuteFormula(std::string &Formula)
 							&cbRetVal);
 
 						if (retcode != SQL_SUCCESS)
-							throw SQLException("ExecuteFormula failed! SQLGetData(RetVal)", retcode);
+							throw SQLException("\n ERROR: ExecuteFormula failed! SQLGetData(RetVal)\n", retcode);
 					}
 					else
 						break;
@@ -1385,7 +1423,7 @@ void FALoad::ExecuteFormula(std::string &Formula)
 
 		retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
 		if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
-		  throw SQLException("ExecuteFormula failed! SQLFreeStmt failed!", retcode);
+		  throw SQLException("\n ERROR: ExecuteFormula failed! SQLFreeStmt failed!\n", retcode);
 
 	}
 	catch (SQLException &ex)

@@ -26,7 +26,6 @@ file::file(std::string &filename, std::string &inputpath, std::string &savepath)
 ////////////////////////////////////////////////////////////////
 file::~file()
 {
-	
 	text_str.clear();
 }
 // End of destructor
@@ -103,16 +102,6 @@ void file::preparefile( std::vector< FALoad *> Loadvec, std::string &fieldterm, 
 				cur_str += fieldterm;
 			}
 		    
-			// Line num column
-			
-			
-			
-			
-			// SPID column
-		//	cur_str.insert(0, reinterpret_cast<char *>(SPID));
-			//cur_str.insert(1, "`");
-			
-			
 		}
 		cur_str.insert(0, std::to_string(SPID) + fieldterm + std::to_string(line_num) + fieldterm);
 		fout << cur_str << rowterm;
@@ -131,7 +120,13 @@ void file::preparefile( std::vector< FALoad *> Loadvec, std::string &fieldterm, 
 //////////////////////////////////////////////////////////////
 void file::PutStrIntoVector()
 {
-  std::ifstream file(this->inputfile);
+  std::ifstream file;
+
+  file.open(this->inputfile, std::ifstream::in);
+
+  if (!file.is_open())
+	  throw std::exception("\n ERROR: Cannot open input file! \n"); 
+ 
 
   std::string cur_str;
 

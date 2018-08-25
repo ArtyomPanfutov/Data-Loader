@@ -1,6 +1,6 @@
 // connection.cpp
 // created: 2018-07-21
-// modified:
+// modified: 2018-05-25
 // author: Artyom Panfutov
 
 #include "connection.h"
@@ -32,7 +32,7 @@ Connection::Connection()
 			                      &henv );
 
 		if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
-		  throw SQLException("Connection failed! SQLAllocHandle(henv)", retcode);
+		  throw SQLException("\n ERROR: Connection failed! SQLAllocHandle(henv)\n", retcode);
 
 
 		// Set the ODBC version environment attribute  
@@ -42,7 +42,7 @@ Connection::Connection()
 			                     0 );
 
 		if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
-   		  throw SQLException("Connection failed! SQLSetEnvAttr(henv)", retcode);
+   		  throw SQLException("\n ERROR: Connection failed! SQLSetEnvAttr(henv)\n", retcode);
 
 		// Allocate connection handle  
 		retcode = SQLAllocHandle( SQL_HANDLE_DBC,
@@ -50,12 +50,11 @@ Connection::Connection()
 			                      &hdbc );
 
 		if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
-          throw SQLException("Connection failed! SQLAllocHandle(henv)", retcode);
+          throw SQLException("\n ERROR: Connection failed! SQLAllocHandle(henv)\n", retcode);
 
 	}
 	catch (SQLException &ex)
 	{
-	  std::cout << "Exception!\n";
       ex.ShowMessage(henv);
 	}
 
@@ -106,7 +105,7 @@ int Connection::DriverConnectAndAllocHandle(std::string &ConnectionString)
 	{ 
 	  retcode = SQLSetConnectAttr(hdbc, SQL_COPT_SS_BCP, (void *)SQL_BCP_ON, SQL_IS_INTEGER);
 	  if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
-			throw SQLException("DriverConnectAndAllocHandle() failed! SQLSetConnectAttr", retcode);
+			throw SQLException("\n ERROR: DriverConnectAndAllocHandle() failed! SQLSetConnectAttr\n", retcode);
 
 	  // Set login timeout to 5 seconds  
 	  SQLSetConnectAttr(hdbc, SQL_LOGIN_TIMEOUT, (SQLPOINTER)5, 0);
@@ -121,7 +120,7 @@ int Connection::DriverConnectAndAllocHandle(std::string &ConnectionString)
                                   SQL_DRIVER_COMPLETE );
 
 	  if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
-  		throw SQLException("Connection failed! SQLDriverConnect", retcode);
+  		throw SQLException("\n ERROR: Connection failed! SQLDriverConnect\n", retcode);
 
 
 	  // Allocate statement handle  
@@ -130,7 +129,7 @@ int Connection::DriverConnectAndAllocHandle(std::string &ConnectionString)
 		                        &hstmt );
 
 	  if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
-	  	throw SQLException("Connection failed! SQLAllocHandle(hdbc)", retcode);
+	  	throw SQLException("\n ERROR: Connection failed! SQLAllocHandle(hdbc)\n", retcode);
 
 
 	}
@@ -148,7 +147,7 @@ int Connection::DriverConnectAndAllocHandle(std::string &ConnectionString)
 
 // ShowErrCode() 
 //////////////////////////////////////////////////////////////////////
-void Connection::ShowErrCode(SQLRETURN& retval)
+inline void Connection::ShowErrCode(SQLRETURN& retval)
 {
 	std::cout << "\nRetcode: " << retval << std::endl;
 
@@ -160,12 +159,12 @@ void Connection::ShowErrCode(SQLRETURN& retval)
 //////////////////////////////////////////////////////////////////////
 int Connection::TestConnection(const short int& display)
 {
-	SQLCHAR ShowDiagInfoQuery[] = "set rowcount 1\
-                                   select @@spid,\
-                                          CURRENT_USER,\
-                                          @@SERVERNAME,\
-                                          DB_NAME()\
-                                          set rowcount 0";
+	SQLCHAR ShowDiagInfoQuery[] = " set rowcount 1 "
+                                  " select @@spid, "
+                                         " CURRENT_USER, "
+                                         " @@SERVERNAME, "
+                                         " DB_NAME() "
+                                  " set rowcount 0 ";
    int CurrentSPID;
 
    SQLINTEGER cbCurrentSPID, 
@@ -186,7 +185,7 @@ int Connection::TestConnection(const short int& display)
 
 		if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
 		{
-			throw SQLException("Test connection failed! SQLExecDirect(ShowDiagInfoQuery)", retcode);
+			throw SQLException("\n ERROR: Test connection failed! SQLExecDirect(ShowDiagInfoQuery)\n", retcode);
 		}
 
     	if (retcode == SQL_SUCCESS)
@@ -196,7 +195,7 @@ int Connection::TestConnection(const short int& display)
 			retcode = SQLFetch(hstmt);
 			if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO)
 			{
-				throw SQLException("Test connection failed! SQLFetch", retcode);
+				throw SQLException("\n ERROR: Test connection failed! SQLFetch\n", retcode);
 			}
 
 			else if (retcode == SQL_SUCCESS) 
@@ -227,19 +226,17 @@ int Connection::TestConnection(const short int& display)
 
 	}
 	else
-			throw SQLException("Test connection failed!", retcode);
+		throw SQLException("\n ERROR: Test connection failed!\n", retcode);
 
 	retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
 		if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
-			throw SQLException("Test connection. SQLFreeStmt failed!", retcode);
+			throw SQLException("\n ERROR: Test connection. SQLFreeStmt failed!\n", retcode);
 
-}
+    }
 	catch (SQLException &ex)
 	{
       ex.ShowMessage(hstmt);	
 	}
-
-	
 
 	return retcode;
 } // End of TestConnection()
@@ -263,7 +260,7 @@ void Connection::GetSPID()
 			SQL_NTS);
 
 		if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
-			throw SQLException("GetSPID failed! SQLExecDirect(SQLGetSPID)", retcode);
+			throw SQLException("\n ERROR: GetSPID failed! SQLExecDirect(SQLGetSPID)\n", retcode);
 
 
 		if (retcode == SQL_SUCCESS)
@@ -273,7 +270,7 @@ void Connection::GetSPID()
 				retcode = SQLFetch(hstmt);
 				if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO)
 				{
-					throw SQLException("GetSPID failed! SQLFetch", retcode);
+					throw SQLException("\n ERROR: GetSPID failed! SQLFetch\n", retcode);
 				}
 
 				else if (retcode == SQL_SUCCESS)
@@ -288,7 +285,7 @@ void Connection::GetSPID()
 						&cbSPID);
 
 					if (retcode != SQL_SUCCESS)
-						throw SQLException("GetSPID failed! SQLGetData(spid)", retcode);
+						throw SQLException("\n ERROR: GetSPID failed! SQLGetData(spid)\n", retcode);
 				}
 				else
 					break;
@@ -298,7 +295,7 @@ void Connection::GetSPID()
 		retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
 
 		if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
-			throw SQLException("GetSPID failed! SQLFreeStmt failed!", retcode);
+			throw SQLException("\n ERROR: GetSPID failed! SQLFreeStmt failed!\n", retcode);
 
 	}
 	catch (SQLException &ex)

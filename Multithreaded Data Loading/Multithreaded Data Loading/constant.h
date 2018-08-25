@@ -7,8 +7,8 @@
 
 #include <string>
 
-const short int DO_NOT_DISPLAY_INFO = 0; // The setting for disable displaying text on the screen 
-const short int DISPLAY_INFO = 1; // The setting for enable displaying text on the screen 
+const short int DO_NOT_DISPLAY_INFO = 0; // Disable displaying text on the screen 
+const short int DISPLAY_INFO = 1; // Enable displaying text on the screen 
 
 // Restrictions on the maximum length
 const short int SQL_USERNAME_MAX_LENGTH = 128;

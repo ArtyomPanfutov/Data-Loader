@@ -155,7 +155,12 @@ void InputAttribute::GetConfig()
 
 	std::string cur_str, temp_str;
 
-	std::ifstream config_file("config.ini");
+	std::ifstream config_file;
+
+	config_file.open("config.ini", std::ifstream::in);
+
+	if (!config_file.is_open())
+		throw std::exception("\n ERROR: Cannot open the configuration file!\n");
 
 	std::vector <std::string> tags;
 
