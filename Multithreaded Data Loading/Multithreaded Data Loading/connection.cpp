@@ -98,7 +98,6 @@ void Connection::CleanUp()
 
 // DriverConnectAndAllocHandle() 
 //////////////////////////////////////////////////////////////////////
-
 int Connection::DriverConnectAndAllocHandle(std::string &ConnectionString)
 {
 	SQLCHAR *ConnStr = (SQLCHAR *)ConnectionString.c_str();
@@ -117,7 +116,7 @@ int Connection::DriverConnectAndAllocHandle(std::string &ConnectionString)
                                   ConnStr,
                                   ConnectionString.length(),
                                   OutConnStr,
-                                  255,
+                                  255, 
                                   &OutConnStrLen,
                                   SQL_DRIVER_COMPLETE );
 

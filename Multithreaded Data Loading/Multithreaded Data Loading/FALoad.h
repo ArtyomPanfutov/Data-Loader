@@ -41,6 +41,7 @@ class FALoad : public Connection
 	std::vector <Param *> LastFormulaParams;  // Параметры формулы постобработки
 	std::vector <char *> Columns;             // Данные для каждого столбца таблицы записывать сюда
 	std::vector <int *> ColumnsLen;           // Длина столбцов 
+	std::vector <bool> IsNumeric;             // Тип данных столбца числовой или не числовой
 
 	bool ShowDiagInfo;
 
