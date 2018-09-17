@@ -1,4 +1,16 @@
-﻿  main.cpp
+﻿  FALoad.cpp
+d:\apanfutov\black hole\c++_proj\multithreaded data loading\multithreaded data loading\multithreaded data loading\faload.cpp(267): warning C4018: <: несоответствие типов со знаком и без знака
+d:\apanfutov\black hole\c++_proj\multithreaded data loading\multithreaded data loading\multithreaded data loading\faload.cpp(408): warning C4018: <: несоответствие типов со знаком и без знака
+d:\apanfutov\black hole\c++_proj\multithreaded data loading\multithreaded data loading\multithreaded data loading\faload.cpp(797): warning C4101: cbColumnLength: неиспользованная локальная переменная
+d:\apanfutov\black hole\c++_proj\multithreaded data loading\multithreaded data loading\multithreaded data loading\faload.cpp(984): warning C4018: <: несоответствие типов со знаком и без знака
+d:\apanfutov\black hole\c++_proj\multithreaded data loading\multithreaded data loading\multithreaded data loading\faload.cpp(1008): warning C4018: <: несоответствие типов со знаком и без знака
+d:\apanfutov\black hole\c++_proj\multithreaded data loading\multithreaded data loading\multithreaded data loading\faload.cpp(1062): warning C4018: >: несоответствие типов со знаком и без знака
+d:\apanfutov\black hole\c++_proj\multithreaded data loading\multithreaded data loading\multithreaded data loading\faload.cpp(976): warning C4101: chColumn: неиспользованная локальная переменная
+d:\apanfutov\black hole\c++_proj\multithreaded data loading\multithreaded data loading\multithreaded data loading\faload.cpp(1187): warning C4018: <: несоответствие типов со знаком и без знака
+  InputAttribute.cpp
+d:\apanfutov\black hole\c++_proj\multithreaded data loading\multithreaded data loading\multithreaded data loading\inputattribute.cpp(187): warning C4018: <: несоответствие типов со знаком и без знака
+  main.cpp
 d:\apanfutov\black hole\c++_proj\multithreaded data loading\multithreaded data loading\multithreaded data loading\main.cpp(81): warning C4018: <: несоответствие типов со знаком и без знака
 d:\apanfutov\black hole\c++_proj\multithreaded data loading\multithreaded data loading\multithreaded data loading\main.cpp(146): warning C4018: <: несоответствие типов со знаком и без знака
+  Создание кода...
   Multithreaded Data Loading.vcxproj -> D:\apanfutov\black hole\c++_proj\Multithreaded Data Loading\Multithreaded Data Loading\Debug\Multithreaded Data Loading.exe

@@ -29,7 +29,6 @@ struct driver
 //////////////////////////////////////////////////////////
 class InputAttribute
 {
-
   private:
 	  server_name server;
 	  db_name database;

@@ -18,13 +18,11 @@
 ////////////////////////////////////////////////////////////////////////
 FALoad::FALoad(std::string &filename, bool ShowDiag, unsigned long Branch) : Connection() 
 {  
-	
 	this->ShowDiagInfo = ShowDiag;
 
 	this->BranchID = Branch;
 
-	this->FileName = filename; // For formula parameter(FileName)
-
+	this->FileName = filename; // For formula's parameter(FileName)
 }
 // End of constructor FALoader()
 // ---------------------------------------------------------------------
@@ -34,8 +32,6 @@ FALoad::FALoad(std::string &filename, bool ShowDiag, unsigned long Branch) : Con
 ////////////////////////////////////////////////////////////////////////
 FALoad::~FALoad(void) 
 {	
-
-
 	for (std::vector< DSType *>::iterator it = DSTypes.begin(); it != DSTypes.end(); ++it)
 	{
 		delete *it;
@@ -47,7 +43,6 @@ FALoad::~FALoad(void)
 		delete *it;		
 	}
 	SetupFormulaParams.clear();
-
 
 	for (std::vector< char *>::iterator it = Columns.begin(); it != Columns.end(); ++it)
 	{
@@ -66,8 +61,6 @@ FALoad::~FALoad(void)
 		delete *it;		
 	}
 	LastFormulaParams.clear();
-
-	
 }
 // End of destructor FALoader()
 // ---------------------------------------------------------------------
@@ -131,7 +124,6 @@ void FALoad::GetLoadInfo()
 		
 		if (retcode == SQL_SUCCESS)
 		{
-			
 			while (TRUE)
 			{
 				retcode = SQLFetch(hstmt);
@@ -410,13 +402,11 @@ void FALoad::GetDSTypesFromDB()
 	ex.ShowMessage(hstmt);
   }
 
-
   // Write into variables
   try
   {
 	  for (auto i = 0; i < DSTypes.size(); i++)
 	  {
-
 		  if (strcmp(DSTypes[i]->Name, "DSBRIEFNAME") == 0)
 		  {
 			  DSBRIEFNAME_Length = DSTypes[i]->Length;
@@ -525,7 +515,6 @@ void FALoad::GetFormulaText(SQLHSTMT &hstmt, double &FormulaID, std::string &Que
 						QueryStr += "\n";
 						QueryStr += (const char*)SingleStr;
 					}
-
 				}
 				else
 					break;
@@ -1320,14 +1309,18 @@ void FALoad::PrepareFormula(std::string &Formula, std::vector<Param *> &Params)
 			}
 			else
 			{ 
-				std::string Value;
-				std::cout << "\n Enter " << Params[i]->CalcField << ": ";
-				std::cin >> Value;
+				// Requests value from user, if it is not initialized 
+				if (Params[i]->Value == "")
+				{
+					std::string Value;
+					std::cout << "\n Enter " << Params[i]->CalcField << ": ";
+					std::cin >> Value;
 
-				if (Params[i]->CalcProperty == 0)
-					Params[i]->Value = Value;
-				else
-					Params[i]->Value = std::string("'") + Value + std::string("'");
+					if (Params[i]->CalcProperty == 0)
+						Params[i]->Value = Value;
+					else
+						Params[i]->Value = std::string("'") + Value + std::string("'");
+				}
 			}
 
 			// Change formula's text

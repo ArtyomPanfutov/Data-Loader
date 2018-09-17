@@ -36,7 +36,7 @@ int main()
 		InputAttribute UserInfo;
 		AsyncLoad MainObj(UserInfo.GetOffset());
 
-		FALoad *CurrentThread;
+		FALoad *CurrentThread, *FirstThread;
 
 		std::string
 			filename = UserInfo.GetFileName(),
@@ -88,7 +88,7 @@ int main()
 
 
 			CurrentThread = MainObj.FALoads.back();
-
+			FirstThread = MainObj.FALoads.front();
 
 			ToDisplay =
 				"\n *******************************************************************************\n";
@@ -119,12 +119,12 @@ int main()
 			ToDisplay = " \n Preparing formula... ";
 			MainObj.Message(ToDisplay);
 
-			CurrentThread->PrepareFormula(CurrentThread->LastFormulaStr, CurrentThread->LastFormulaParams);
-			CurrentThread->PrepareFormula(CurrentThread->SetupFormulaStr, CurrentThread->SetupFormulaParams);
+			// Uses params from the front thread, because they are identical to all threads 
+			CurrentThread->PrepareFormula(CurrentThread->LastFormulaStr, FirstThread->LastFormulaParams);
+			CurrentThread->PrepareFormula(CurrentThread->SetupFormulaStr, FirstThread->SetupFormulaParams);
 
 			ToDisplay = " Preparing of the object " + LoadBrief + std::string(" Number: ") + std::to_string(i) + " is completed!";
-			MainObj.Message(ToDisplay);
-			
+			MainObj.Message(ToDisplay);			
 		}
 
 		fieldterm = std::string(reinterpret_cast<const char *> (MainObj.FALoads.front()->Delimiter));
