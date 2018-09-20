@@ -6,7 +6,7 @@
 
 #include "constant.h"
 #include <string>
-
+#include "Output.h"
 
 struct server_name
 {
@@ -25,6 +25,7 @@ struct driver
 	bool from_file;
 	std::string driver_name;
 };
+
 
 //////////////////////////////////////////////////////////
 class InputAttribute

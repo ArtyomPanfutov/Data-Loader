@@ -77,6 +77,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>C:\Program Files %28x86%29\Microsoft SQL Server\110\SDK\Include;C:\Program Files %28x86%29\Microsoft SQL Server\110\SDK\Lib\x86; C:\Program Files %28x86%29\Microsoft SQL Server\110\SDK\Include;C:\Program Files\Microsoft SQL Server\100\SDK\Lib\x86;C:\Program Files %28x86%29\Microsoft SQL Server\110\SDK\Include;C:\Program Files %28x86%29\Microsoft SQL Server\100\SDK\Lib\x86</AdditionalLibraryDirectories>
@@ -126,12 +127,14 @@
     <ClCompile Include="file.cpp" />
     <ClCompile Include="InputAttribute.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Output.cpp" />
     <ClCompile Include="SQLException.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AsyncLoad.h" />
     <ClInclude Include="connection.h" />
     <ClInclude Include="constant.h" />
+    <ClInclude Include="Output.h" />
     <ClInclude Include="FALoad.h" />
     <ClInclude Include="file.h" />
     <ClInclude Include="InputAttribute.h" />

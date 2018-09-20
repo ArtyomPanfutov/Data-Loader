@@ -8,6 +8,8 @@
 #include <string>
 #include <vector>
 #include <Windows.h>
+#include "Output.h"
+#include "constant.h"
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -16,7 +18,8 @@
 *************** Definiton of methods. Class InputAttribute *************
 ***********************************************************************/
 
-
+std::string LogFileName = "InputLog.txt";
+Log LogWriter(LogFileName);
 
 // Constructor of InputAttribute
 ////////////////////////////////////////////////////////////////////////
@@ -166,21 +169,17 @@ void InputAttribute::GetConfig()
 
 	size_t cur_pos = 0;
 
-	// Push tags into vector 
 	tags.push_back(SERVERNAME_TAG);
 	tags.push_back(DATABASE_TAG);
 	tags.push_back(DRIVER_TAG);
 	tags.push_back(SHOWDIAGINFO_TAG);
 	tags.push_back(OFFSET_TAG);
 
-	
-
-	// Get strings from the file and fill variables with values from the parameters
 	while (getline(config_file, cur_str))
 	{
 		cur_pos = 0;
 
-		if (cur_pos = cur_str.find(";", cur_pos) == std::string::npos )     // Ignore comments.	
+		if (cur_pos = cur_str.find(";", cur_pos) == std::string::npos )  // Ignore comments.	
 		{			
 			int i = 0, tag_length;
 
@@ -456,17 +455,22 @@ std::string InputAttribute::GetFileName()
 ////////////////////////////////////////////////////////////////////////
 void InputAttribute::DisplayAllAttributes()
 {
-	std::cout << "\n\n";
-	std::cout << " Input data: ";
-	std::cout << "\n 1. Server   - " << this->GetServer();
-	std::cout << "\n 2. Database - " << this->GetDB();
-	std::cout << "\n 3. User     - " << this->GetUser();
-	std::cout << "\n 4. Driver   - " << this->GetDriver();
-	std::cout << "\n 5. File     - " << this->GetFileName();
-	std::cout << "\n 6. Threads  - " << this->GetNumberOfThreads();
-	std::cout << "\n 7. Brief    - " << this->GetLoadBrief();
-	std::cout << "\n 8. BranchID - " << this->GetBranchID();
-	std::cout << "\n\n";
+
+	std::string ToDisplay;
+	ToDisplay = "\n\n"
+	            " Input data: "
+	            "\n 1. Server   - " + this->GetServer() +
+	            "\n 2. Database - " + this->GetDB() +
+	            "\n 3. User     - " + this->GetUser() +
+	            "\n 4. Driver   - " + this->GetDriver() +
+	            "\n 5. File     - " + this->GetFileName() +
+	            "\n 6. Threads  - " + std::to_string(this->GetNumberOfThreads()) +
+	            "\n 7. Brief    - " + this->GetLoadBrief() +
+	            "\n 8. BranchID - " + std::to_string(this->GetBranchID()) +
+	            "\n\n";
+	std::cout << ToDisplay;
+	LogWriter.WriteIntoFile(ToDisplay);
+	
  } // End if DisplayAllAttributes
 //----------------------------------------------------------------------
 

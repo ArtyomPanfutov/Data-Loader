@@ -1,6 +1,6 @@
 // main.cpp 
 // created: 2018-07-21
-// modified: 2018-08-25
+// modified: 2018-09-20
 // author: Artyom Panfutov
 
 #include <iostream>
@@ -18,38 +18,41 @@
 #include <vector>
 #include "InputAttribute.h"
 #include <Windows.h>
+#include "Output.h"
+
 
 int main()
-{	
+{
+	setlocale(LC_ALL, "RUS");
+	SetConsoleCP(866);
+
+	std::string LogFileName = "LoadLog.txt";
+	Log LogWriter(LogFileName);
+
+	std::cout <<
+		"\n\n *******************************************************************************\n"
+		"\n                         Asynchronous Data Loader                                   "
+		"\n\n *******************************************************************************\n";
+
 	try
-	{
-		setlocale(LC_ALL, "RUS");
-		SetConsoleCP(866);
-		// SetConsoleOutputCP(866);
-
-		std::cout <<
-			"\n\n *******************************************************************************\n"
-			"\n                               Fiora (alpha version)                             "
-			"\n                                   Data Loader                                   "
-			"\n\n *******************************************************************************\n";
-
+	{		
 		InputAttribute UserInfo;
 		AsyncLoad MainObj(UserInfo.GetOffset());
 
 		FALoad *CurrentThread, *FirstThread;
-
+		  
 		std::string
-			filename = UserInfo.GetFileName(),
+			FileName = UserInfo.GetFileName(),
 			inputpath,
 			savepath,
 			ToDisplay,
-			rowterm = "\r\n",
-			fieldterm;
+			RowTerminator = "\r\n",
+			FieldTerminator;
 
 		std::string LoadBrief;
 		LoadBrief = UserInfo.GetLoadBrief();
 
-		file DataFile(filename, inputpath, savepath);
+		file DataFile(FileName, inputpath, savepath);
 
 		unsigned int
 			CountOfStrings,
@@ -68,21 +71,20 @@ int main()
 
 		CountOfStrings = DataFile.GetCountOfStrings();
 
-		ToDisplay = " Strings to process: " + std::to_string(CountOfStrings);
-		MainObj.Message(ToDisplay);
+		ToDisplay = "Lines to process: " + std::to_string(CountOfStrings);
+		LogWriter.Push(ToDisplay, INFO_MESSAGE, true);
 
 		Batch = (CountOfStrings / Threads) + (CountOfStrings % Threads);
 
-		ToDisplay = " Creating objects for loads... Batch: " + std::to_string(Batch) + "\n";
-		MainObj.Message(ToDisplay);
-
+		ToDisplay = "Creating objects for loads... Batch: " + std::to_string(Batch) + "\n";
+		LogWriter.Push(ToDisplay, INFO_MESSAGE, true);
 
 		// Create objects and prepare sql formula for each object.
 		for (int i = 0; i < Threads; i++)
 		{
 			std::string ConnectionString = UserInfo.GetConnectionString();
 
-			MainObj.FALoads.push_back(new FALoad(filename,
+			MainObj.FALoads.push_back(new FALoad(FileName,
 				UserInfo.IsDiagInfoToShow(),
 				UserInfo.GetBranchID()));
 
@@ -93,45 +95,50 @@ int main()
 			ToDisplay =
 				"\n *******************************************************************************\n";
 			" The object " + LoadBrief + std::string(" Number: ") + std::to_string(i) + " created! \n\n";
-			MainObj.Message(ToDisplay);
+			//MainObj.Message(ToDisplay);
+			LogWriter.Push(ToDisplay, INFO_MESSAGE, true);
 
 			// Don't forget to rewrite this part (too many identical queries to server)
 			CurrentThread->DriverConnectAndAllocHandle(ConnectionString);
 			CurrentThread->GetSPID();
 
 			ToDisplay = " Connection SPID " + std::to_string(CurrentThread->SPID);
-			MainObj.Message(ToDisplay);
+			//MainObj.Message(ToDisplay);
+			LogWriter.Push(ToDisplay, INFO_MESSAGE, true);
 
 			CurrentThread->SetLoadBrief(LoadBrief);
 
-			ToDisplay = " \n Getting Diasoft data types... ";
-			MainObj.Message(ToDisplay);
+			ToDisplay = " Getting Diasoft data types... ";
+			//MainObj.Message(ToDisplay);
+			LogWriter.Push(ToDisplay, INFO_MESSAGE, true);
 
 			CurrentThread->GetDSTypesFromDB();
 
-			ToDisplay = " \n Getting attributes of load... ";
-			MainObj.Message(ToDisplay);
+			ToDisplay = " Getting attributes of load... ";
+			//MainObj.Message(ToDisplay);
+			LogWriter.Push(ToDisplay, INFO_MESSAGE, true);
 
 			CurrentThread->GetLoadInfo();
 			CurrentThread->GetSetupParamsFromDB();
 			CurrentThread->GetLastParamsFromDB();
 
-			ToDisplay = " \n Preparing formula... ";
-			MainObj.Message(ToDisplay);
+			ToDisplay = " Preparing formula... ";
+			//MainObj.Message(ToDisplay);
+			LogWriter.Push(ToDisplay, INFO_MESSAGE, true);
 
 			// Uses params from the front thread, because they are identical to all threads 
 			CurrentThread->PrepareFormula(CurrentThread->LastFormulaStr, FirstThread->LastFormulaParams);
 			CurrentThread->PrepareFormula(CurrentThread->SetupFormulaStr, FirstThread->SetupFormulaParams);
 
 			ToDisplay = " Preparing of the object " + LoadBrief + std::string(" Number: ") + std::to_string(i) + " is completed!";
-			MainObj.Message(ToDisplay);			
+			//MainObj.Message(ToDisplay);			
+			LogWriter.Push(ToDisplay, INFO_MESSAGE, true);
 		}
 
-		fieldterm = std::string(reinterpret_cast<const char *> (MainObj.FALoads.front()->Delimiter));
+		FieldTerminator = std::string(reinterpret_cast<const char *> (MainObj.FALoads.front()->Delimiter));
 
 		FirstRow = 0;
 		LastRow = Batch - 1;
-
 
 		ToDisplay = " *******************************************************************************";
 		MainObj.Message(ToDisplay);
@@ -148,19 +155,21 @@ int main()
 			CurrentThread = MainObj.FALoads[i];
 			CurrentThread->ExecuteFormula(CurrentThread->SetupFormulaStr);
 
-			ToDisplay = "\n Start BCP push for the object " + LoadBrief + std::string(" Number: ") + std::to_string(i) + "\n Lines [" + std::to_string(FirstRow) + ".." + std::to_string(LastRow) + "]";
-			MainObj.Message(ToDisplay);
+			ToDisplay = " Start BCP push for object " + LoadBrief + std::string(" Number: ") + std::to_string(i) + "\n Lines [" + std::to_string(FirstRow) + ".." + std::to_string(LastRow) + "]";
+		//	MainObj.Message(ToDisplay);
+			LogWriter.Push(ToDisplay, INFO_MESSAGE, true);
 
 			RowsDone = CurrentThread->StartBCP(
-				fieldterm,
-				rowterm,
+				FieldTerminator,
+				RowTerminator,
 				FirstRow,
 				LastRow,
 				DataFile.text_str);
 
-			ToDisplay = "\n BCP load for object " + LoadBrief + std::string(" Number: ") + std::to_string(i) + " is completed! \n"
+			ToDisplay = " BCP load for object " + LoadBrief + std::string(" Number: ") + std::to_string(i) + " is completed! \n"
 				        "\n *******************************************************************************\n";
-			MainObj.Message(ToDisplay);
+			//MainObj.Message(ToDisplay);
+			LogWriter.Push(ToDisplay, INFO_MESSAGE, true);
 
 			FirstRow = LastRow + 1;
 			LastRow += Batch;
@@ -177,7 +186,10 @@ int main()
 	}
 	catch (std::exception &ex)
 	{
-		std::cout << "\n" << ex.what();
+		//std::cout << "\n" << ex.what();
+		std::string ErrorMessage(ex.what());
+
+		LogWriter.Push(ErrorMessage, ERROR_MESSAGE, true);
 	}
 	system("pause");
 

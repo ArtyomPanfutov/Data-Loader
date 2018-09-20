@@ -17,7 +17,6 @@ const short int SQL_DB_MAX_LENGTH = 128;
 const short int SQL_PASSWORD_MAX_LENGTH = 128;
 const short int SQL_DRIVER_MAX_LENGTH = 128;
 
-
 // Parameters for config.ini
 const std::string SERVERNAME_TAG = "SERVERNAME";
 const std::string DATABASE_TAG = "DATABASE";
@@ -25,5 +24,7 @@ const std::string DRIVER_TAG = "DRIVER";
 const std::string SHOWDIAGINFO_TAG = "ShowDiagInfo";
 const std::string OFFSET_TAG = "OffsetTime";
 
-
+const std::string ERROR_MESSAGE = "ERROR";
+const std::string WARNING_MESSAGE = "WARNING";
+const std::string INFO_MESSAGE = "INFO";
 #endif // CONSTANT_H
