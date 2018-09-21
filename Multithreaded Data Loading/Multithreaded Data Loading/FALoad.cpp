@@ -9,10 +9,16 @@
 #include "file.h"
 #include <fstream>
 #include <vector>
+#include "constant.h"
+#include "Output.h"
+
 
 /***********************************************************************
 *************** Definiton of methods. Class FALoader *******************
 ***********************************************************************/
+
+std::string ProccessingLogFileName = "ProcessingLog.txt";
+Log ProcLogWriter(ProccessingLogFileName);
 
 // Constructor FALoader()
 ////////////////////////////////////////////////////////////////////////
@@ -277,6 +283,7 @@ void FALoad::GetLoadInfo()
 	}
 	catch (std::exception &ex)
 	{
+
 		std::cout << ex.what();
 	}
 	
@@ -509,6 +516,7 @@ void FALoad::GetFormulaText(SQLHSTMT &hstmt, double &FormulaID, std::string &Que
 
 					if (retcode != SQL_SUCCESS)
 						throw SQLException("\n ERROR: GetFormulaText failed! SQLGetData(QueryStr)\n", retcode);
+
 
 					if (strcmp((const char *)SingleStr, "SQL:") != 0) // Ingore first row "SQL:" from formula's text
 					{
@@ -1058,7 +1066,7 @@ unsigned long FALoad::StartBCP(std::string &fieldterm_str, std::string &rowterm_
 					{
 						copy_field = cur_str.substr(last_pos, cur_pos - last_pos);
 
-						// For the case when a field has a bigger length than a table column length
+						// For those case when a field has a bigger length than a table column length
 						if (copy_field.length() > *ColumnsLen[it])
 							strcpy_s(Columns[it], *ColumnsLen[it] + 1, (cur_str.substr(last_pos, *ColumnsLen[it] )).c_str());
 						else
@@ -1122,7 +1130,8 @@ unsigned long FALoad::StartBCP(std::string &fieldterm_str, std::string &rowterm_
 			std::cout << "\n ERROR:  bcp_done(hdbc) Failed\n\n";			
 		}
 
-		std::cout << "\n\n rows copied: " << cRowsDone << std::endl;
+		std::string LogMessage = " Rows copied: " + std::to_string(cRowsDone);
+		ProcLogWriter.Push(LogMessage, INFO_MESSAGE, 1);
 	}
 	catch (SQLException &ex)
 	{

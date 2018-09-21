@@ -3,6 +3,7 @@
 // InputAttribute.h
 // created: 2018-08-18
 // author: Artyom Panfutov
+//
 
 #include "constant.h"
 #include <string>

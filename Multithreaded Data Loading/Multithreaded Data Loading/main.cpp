@@ -95,27 +95,23 @@ int main()
 			ToDisplay =
 				"\n *******************************************************************************\n";
 			" The object " + LoadBrief + std::string(" Number: ") + std::to_string(i) + " created! \n\n";
-			//MainObj.Message(ToDisplay);
 			LogWriter.Push(ToDisplay, INFO_MESSAGE, true);
 
 			// Don't forget to rewrite this part (too many identical queries to server)
 			CurrentThread->DriverConnectAndAllocHandle(ConnectionString);
 			CurrentThread->GetSPID();
 
-			ToDisplay = " Connection SPID " + std::to_string(CurrentThread->SPID);
-			//MainObj.Message(ToDisplay);
+			ToDisplay = " Connection SPID: " + std::to_string(CurrentThread->SPID);
 			LogWriter.Push(ToDisplay, INFO_MESSAGE, true);
 
 			CurrentThread->SetLoadBrief(LoadBrief);
 
 			ToDisplay = " Getting Diasoft data types... ";
-			//MainObj.Message(ToDisplay);
 			LogWriter.Push(ToDisplay, INFO_MESSAGE, true);
 
 			CurrentThread->GetDSTypesFromDB();
 
 			ToDisplay = " Getting attributes of load... ";
-			//MainObj.Message(ToDisplay);
 			LogWriter.Push(ToDisplay, INFO_MESSAGE, true);
 
 			CurrentThread->GetLoadInfo();
@@ -123,7 +119,6 @@ int main()
 			CurrentThread->GetLastParamsFromDB();
 
 			ToDisplay = " Preparing formula... ";
-			//MainObj.Message(ToDisplay);
 			LogWriter.Push(ToDisplay, INFO_MESSAGE, true);
 
 			// Uses params from the front thread, because they are identical to all threads 
@@ -131,7 +126,6 @@ int main()
 			CurrentThread->PrepareFormula(CurrentThread->SetupFormulaStr, FirstThread->SetupFormulaParams);
 
 			ToDisplay = " Preparing of the object " + LoadBrief + std::string(" Number: ") + std::to_string(i) + " is completed!";
-			//MainObj.Message(ToDisplay);			
 			LogWriter.Push(ToDisplay, INFO_MESSAGE, true);
 		}
 
@@ -156,7 +150,6 @@ int main()
 			CurrentThread->ExecuteFormula(CurrentThread->SetupFormulaStr);
 
 			ToDisplay = " Start BCP push for object " + LoadBrief + std::string(" Number: ") + std::to_string(i) + "\n Lines [" + std::to_string(FirstRow) + ".." + std::to_string(LastRow) + "]";
-		//	MainObj.Message(ToDisplay);
 			LogWriter.Push(ToDisplay, INFO_MESSAGE, true);
 
 			RowsDone = CurrentThread->StartBCP(
@@ -168,7 +161,7 @@ int main()
 
 			ToDisplay = " BCP load for object " + LoadBrief + std::string(" Number: ") + std::to_string(i) + " is completed! \n"
 				        "\n *******************************************************************************\n";
-			//MainObj.Message(ToDisplay);
+
 			LogWriter.Push(ToDisplay, INFO_MESSAGE, true);
 
 			FirstRow = LastRow + 1;
@@ -186,9 +179,7 @@ int main()
 	}
 	catch (std::exception &ex)
 	{
-		//std::cout << "\n" << ex.what();
 		std::string ErrorMessage(ex.what());
-
 		LogWriter.Push(ErrorMessage, ERROR_MESSAGE, true);
 	}
 	system("pause");

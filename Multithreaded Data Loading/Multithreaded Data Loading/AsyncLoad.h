@@ -4,6 +4,7 @@
 // created: 2018-07-26
 // modified:
 // author: Artyom Panfutov
+//
 
 #include "FALoad.h"
 #include "SQLException.h"
