@@ -29,6 +29,7 @@ int main()
 	SetConsoleCP(866);
 
 	std::string LogFileName = "LoadLog.txt";
+
 	Log LogWriter(LogFileName);
 	LogWriter.ClearFile();
 
@@ -49,10 +50,10 @@ int main()
 			InputPath,
 			OutputPath,
 			ToDisplay,
-			RowTerminator = "\r\n",
-			FieldTerminator;
+			FieldTerminator,
+		    RowTerminator = "\r\n",
+			LoadBrief;
 
-		std::string LoadBrief;
 		LoadBrief = UserInfo.GetLoadBrief();
 
 		File DataFile(FileName, InputPath, OutputPath);

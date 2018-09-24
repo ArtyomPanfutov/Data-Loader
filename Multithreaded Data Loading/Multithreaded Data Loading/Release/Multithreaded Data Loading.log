@@ -1,6 +1,0 @@
-﻿FALoad.obj : error LNK2001: неразрешенный внешний символ "_bcp_bind@32"
-FALoad.obj : error LNK2001: неразрешенный внешний символ "_bcp_initA@20"
-FALoad.obj : error LNK2001: неразрешенный внешний символ "_bcp_done@4"
-FALoad.obj : error LNK2001: неразрешенный внешний символ "_bcp_sendrow@4"
-FALoad.obj : error LNK2001: неразрешенный внешний символ "_bcp_control@12"
-D:\apanfutov\black hole\c++_proj\Multithreaded Data Loading\Multithreaded Data Loading\Release\Multithreaded Data Loading.exe : fatal error LNK1120: неразрешенных внешних элементов: 5

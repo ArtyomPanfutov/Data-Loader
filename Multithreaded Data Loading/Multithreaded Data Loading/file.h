@@ -10,6 +10,7 @@
 #include <string>
 #include "FALoad.h"
 #include <vector>
+
 class File
 {
 public:
@@ -27,6 +28,4 @@ public:
 	void PutStrIntoVector();
 	unsigned int GetCountOfStrings();
 };
-
-
 #endif
