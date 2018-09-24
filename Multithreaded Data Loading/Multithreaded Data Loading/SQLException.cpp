@@ -20,7 +20,7 @@
 ***********************************************************************/
 
 
-std::string ExceptionLogFileName = "ExceptionLog.txt";
+std::string ExceptionLogFileName = "LoadLog.txt";
 std::string ExceptionLogMessage;
 Log ExceptionLogWriter(ExceptionLogFileName);
 

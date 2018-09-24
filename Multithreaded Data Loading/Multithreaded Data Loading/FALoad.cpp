@@ -17,7 +17,8 @@
 *************** Definiton of methods. Class FALoader *******************
 ***********************************************************************/
 
-std::string ProccessingLogFileName = "ProcessingLog.txt";
+std::string ProccessingLogFileName = "LoadLog.txt";
+std::string ProcLogMessage;
 Log ProcLogWriter(ProccessingLogFileName);
 
 // Constructor FALoader()
@@ -230,20 +231,21 @@ void FALoad::GetLoadInfo()
 
 					if (ShowDiagInfo)
 					{
-						std::cout.setf(std::ios::fixed);
-						std::cout << "\n ImportFileID " << ImportFileID;
-						std::cout << "\n Delimiter " << Delimiter;
-						std::cout << "\n PathInput " << PathInput;
-						std::cout << "\n PathOutput " << PathOutput;
-						std::cout << "\n ParamList " << ParamList;
-						std::cout << "\n OEMToANSI " << OEMToANSI;
-						std::cout << "\n SetupFormula " << SetupFormula;
-						std::cout << "\n LastFormula" << LastFormula;
+						ProcLogMessage =
+							"\n ImportFileID " + std::to_string(ImportFileID) +
+							"\n Delimiter " + std::string(reinterpret_cast<char *>(Delimiter)) +
+							"\n PathInput " + std::string(reinterpret_cast<char *>(PathInput)) +
+							"\n PathOutput " + std::string(reinterpret_cast<char *>(PathOutput)) +
+							"\n ParamList " + std::string(reinterpret_cast<char *>(PathInput)) +
+							"\n OEMToANSI " + std::to_string(OEMToANSI) +
+							"\n SetupFormulaID " + std::to_string(SetupFormula) +
+							"\n LastFormulaID" + std::to_string(LastFormula);
+
+						ProcLogWriter.Push(ProcLogMessage, INFO_MESSAGE, true);
 					}
 				}
 				else
 				{
-				//	std::cout << "\nSQLGetLoadID: No Info!\n";
 					break;
 				}
 			}
@@ -265,14 +267,19 @@ void FALoad::GetLoadInfo()
 		
 		if (ShowDiagInfo)
 		{
-			std::cout << "\n SetupFormulaStr:\n" << SetupFormulaStr;
-			std::cout << "\n SetupFormulaStr:\n" << LastFormulaStr;
+			ProcLogMessage = "SetupFormulaStr:\n" + SetupFormulaStr;
+			ProcLogWriter.Push(ProcLogMessage, INFO_MESSAGE, true);
 
-			std::cout << "\n TableColumns: " << TableColumns;
+			ProcLogMessage = "LastFormulaStr:\n" + LastFormulaStr;
+			ProcLogWriter.Push(ProcLogMessage, INFO_MESSAGE, true);
+
+			ProcLogMessage = "TableColumns: " + std::to_string(TableColumns);
+			ProcLogWriter.Push(ProcLogMessage, INFO_MESSAGE, true);
 
 			for (int i = 0; i < ColumnsLen.size(); i++)
 			{
-				std::cout << "\n ColumnLen " << i << " " << *ColumnsLen[i];
+				ProcLogMessage = "ColumnLen " + std::to_string(i) + " " + std::to_string(*ColumnsLen[i]);
+				ProcLogWriter.Push(ProcLogMessage, INFO_MESSAGE, true);
 			}
 		}
 		
@@ -382,11 +389,6 @@ void FALoad::GetDSTypesFromDB()
 
 			  if (retcode != SQL_SUCCESS)
 				  throw SQLException("\n ERROR: GetDSTypesFromDB failed! SQLGetData(Precision)\n", retcode);
-
-			  /*std::cout.setf(std::ios::fixed);
-			  std::cout << "\n Name " << DSTypes.back()->Name;
-			  std::cout << "\n Length " << DSTypes.back()->Length;
-			  std::cout << "\n Precision " << DSTypes.back()->Precision;*/
 		  }
 		  else
 		  {
@@ -969,20 +971,24 @@ void FALoad::GetTableColumnsFromDB()
 
 // StartBCP
 /////////////////////////////////////////////////////////////////////////////////////
-unsigned long FALoad::StartBCP(std::string &fieldterm_str, std::string &rowterm_str, unsigned long int &firstrow, unsigned long int &lastrow, std::vector<std::string> &file_str)
+unsigned long FALoad::StartBCP(
+	std::string &FieldTerminator,
+	std::string &RowTerminator, 
+	unsigned long int &FirstRow,
+	unsigned long int &LastRow, 
+	std::vector<std::string> &InputFile)
 {
-	int cbCol = 0;
 
-//	std::ifstream file(filename);
-	std::string cur_str, copy_field;
+	std::string CurrentLine, CopyingField;
 
-	unsigned long it = 0,
-		cur_pos = 0,
-		last_pos = 0,
-		str_num = 1;
+	unsigned long 
+		CurrentColumnNumber = 0,
+		CurrentPosition = 0,
+		LastPosition = 0,
+		LineNumber = 1;
 
 	char *chColumn;  
-	char terminator = '\0';
+	char Terminator = '\0';
 
 	DBINT cRowsDone = 0;
 
@@ -998,7 +1004,7 @@ unsigned long FALoad::StartBCP(std::string &fieldterm_str, std::string &rowterm_
 	try
 	{
 		// Initialize the bulk copy.  
-		retcode = bcp_init(hdbc, (const char*)ParamList, NULL, "bcp_log.txt", DB_IN);
+		retcode = bcp_init(hdbc, (const char*)ParamList, NULL, "BCPLog.txt", DB_IN);
 		if (retcode != SUCCEED)
 			throw SQLException("\n ERROR: StartBCP failed! bcp_init\n", retcode);
 
@@ -1021,7 +1027,7 @@ unsigned long FALoad::StartBCP(std::string &fieldterm_str, std::string &rowterm_
 					(BYTE *)Columns[i],
 					NULL,
 					SQL_VARLEN_DATA,
-					(UCHAR *)&terminator,
+					(UCHAR *)&Terminator,
 					1,
 					SQLCHARACTER,
 					i + 1);
@@ -1031,7 +1037,7 @@ unsigned long FALoad::StartBCP(std::string &fieldterm_str, std::string &rowterm_
 					(BYTE *)Columns[i],
 					NULL,
 					SQL_VARLEN_DATA,
-					(UCHAR *)&terminator,
+					(UCHAR *)&Terminator,
 					1,
 					SQLNUMERICN,
 					i + 1);
@@ -1041,97 +1047,104 @@ unsigned long FALoad::StartBCP(std::string &fieldterm_str, std::string &rowterm_
 		}
 
 
-		for (unsigned long i = firstrow; i <= lastrow; i++)
+		for (unsigned long i = FirstRow; i <= LastRow; i++)
 		{
-			cur_str = file_str[i];
+			CurrentLine = InputFile[i];
 
 			// Set num column.
-			sprintf_s(Columns[1], *ColumnsLen[1], "%d", str_num);
+			sprintf_s(Columns[1], *ColumnsLen[1], "%d", LineNumber);
 
 			if (ShowDiagInfo)
 			{
-				std::cout << "\n Col " << 0 << " " << Columns[0];
-				std::cout << "\n Col " << 1 << " " << Columns[1];
+				ProcLogMessage = "\n Col  0 " + std::string(Columns[0]);
+				ProcLogWriter.Push(ProcLogMessage, INFO_MESSAGE, true);
+
+				ProcLogMessage = "\n Col  1 " + std::string(Columns[1]);
+				ProcLogWriter.Push(ProcLogMessage, INFO_MESSAGE, true);
 			}
 
-			it = 2, cur_pos = 0, last_pos = 0;
+			CurrentColumnNumber = 2, CurrentPosition = 0, LastPosition = 0;
 
-			if (it < TableColumns - 1)
+			if (CurrentColumnNumber < TableColumns - 1)
 			{
-				while ((cur_pos = cur_str.find(fieldterm_str, cur_pos)) != std::string::npos)
+				while ((CurrentPosition = CurrentLine.find(FieldTerminator, CurrentPosition)) != std::string::npos)
 				{
-					if (it > Columns.size() - 1)
+					if (CurrentColumnNumber > Columns.size() - 1)
 						break;
 					else
 					{
-						copy_field = cur_str.substr(last_pos, cur_pos - last_pos);
+						CopyingField = CurrentLine.substr(LastPosition, CurrentPosition - LastPosition);
 
 						// For those case when a field has a bigger length than a table column length
-						if (copy_field.length() > *ColumnsLen[it])
-							strcpy_s(Columns[it], *ColumnsLen[it] + 1, (cur_str.substr(last_pos, *ColumnsLen[it] )).c_str());
+						if (CopyingField.length() > *ColumnsLen[CurrentColumnNumber])
+							strcpy_s(Columns[CurrentColumnNumber], *ColumnsLen[CurrentColumnNumber] + 1, (CurrentLine.substr(LastPosition, *ColumnsLen[CurrentColumnNumber] )).c_str());
 						else
-							strcpy_s(Columns[it], *ColumnsLen[it] + 1, (copy_field).c_str());
+							strcpy_s(Columns[CurrentColumnNumber], *ColumnsLen[CurrentColumnNumber] + 1, (CopyingField).c_str());
 
 						if (ShowDiagInfo)
 						{
-							std::cout << "\n Col " << it << " " << Columns[it];
+							ProcLogMessage = "\n Col " + std::to_string(CurrentColumnNumber) + std::string(Columns[CurrentColumnNumber]);
+							ProcLogWriter.Push(ProcLogMessage, INFO_MESSAGE, true);
 						}
 
-						last_pos = cur_pos + 1;
-						cur_pos++;
-						it++;
+						LastPosition = CurrentPosition + 1;
+						CurrentPosition++;
+						CurrentColumnNumber++;
 					}
 				}
 			}
-			if (it == TableColumns - 1)
+			if (CurrentColumnNumber == TableColumns - 1)
 			{
-				cur_pos = cur_str.find(rowterm_str, cur_pos);
-				strcpy_s(Columns[it], *ColumnsLen[it], (cur_str.substr(last_pos, cur_pos - last_pos)).c_str());
+				CurrentPosition = CurrentLine.find(RowTerminator, CurrentPosition);
+				strcpy_s(Columns[CurrentColumnNumber], *ColumnsLen[CurrentColumnNumber], (CurrentLine.substr(LastPosition, CurrentPosition - LastPosition)).c_str());
 
 				if (ShowDiagInfo)
 				{
-					std::cout << "\n Col " << it << " " << Columns[it];
+					ProcLogMessage = "\n Col " + std::to_string(CurrentColumnNumber) + std::string(Columns[CurrentColumnNumber]);
+					ProcLogWriter.Push(ProcLogMessage, INFO_MESSAGE, true);
 				}
 
-				last_pos = cur_pos - 1;
-				it++;
+				LastPosition = CurrentPosition - 1;
+				CurrentColumnNumber++;
 			}
 
 			// For those case when not all columns exists in the input file.
-			if (it < TableColumns - 1)
+			if (CurrentColumnNumber < TableColumns - 1)
 			{
-				while (it <= TableColumns - 1)
+				while (CurrentColumnNumber <= TableColumns - 1)
 				{
-					strcpy_s(Columns[it], *ColumnsLen[it], " ");
+					strcpy_s(Columns[CurrentColumnNumber], *ColumnsLen[CurrentColumnNumber], " ");
 
 					if (ShowDiagInfo)
 					{
-						std::cout << "\n Col " << it << " " << Columns[it];
+						ProcLogMessage = "\n Col  " + std::to_string(CurrentColumnNumber) + std::string(Columns[CurrentColumnNumber]);
+						ProcLogWriter.Push(ProcLogMessage, INFO_MESSAGE, true);
 					}
 
-					it++;
+					CurrentColumnNumber++;
 				}
 			}
 
 			// And send this row to the table.
 			SendRet = bcp_sendrow(hdbc);
 			if (SendRet != SUCCEED)
-			{
-				//throw SQLException("\n bcp_sendrow failed! retcode:", SendRet);
-				std::cout << "\n ERROR:  bcp_sendrow failed! retcode: " << SendRet;
+			{ 
+				ProcLogMessage = "\n ERROR:  bcp_sendrow failed! Retcode: " + std::to_string(SendRet);
+				ProcLogWriter.Push(ProcLogMessage, ERROR_MESSAGE, true);
 			}	
-			str_num++;
+			LineNumber++;
 		}
 		     
 		// Signal the end of the bulk copy operation.  
 		cRowsDone = bcp_done(hdbc);
 		if ((cRowsDone == -1)) 
-		{
-			std::cout << "\n ERROR:  bcp_done(hdbc) Failed\n\n";			
+		{	
+			ProcLogMessage = "\n ERROR:  bcp_done(hdbc) Failed\n\n";
+			ProcLogWriter.Push(ProcLogMessage, ERROR_MESSAGE, true);
 		}
 
-		std::string LogMessage = " Rows copied: " + std::to_string(cRowsDone);
-		ProcLogWriter.Push(LogMessage, INFO_MESSAGE, 1);
+		ProcLogMessage = "Rows copied: " + std::to_string(cRowsDone);
+		ProcLogWriter.Push(ProcLogMessage, INFO_MESSAGE, true);
 	}
 	catch (SQLException &ex)
 	{
@@ -1156,7 +1169,7 @@ void FALoad::PrepareFormula(std::string &Formula, std::vector<Param *> &Params)
 			OneLineCommentSymPos = 0,
 			EndLinePos = 0;
 
-		std::string
+		const std::string
 			BeginCommentSym = "/*",
 			EndCommentSym = "*/",
 			OneLineCommentSym = "--";
@@ -1295,9 +1308,9 @@ void FALoad::PrepareFormula(std::string &Formula, std::vector<Param *> &Params)
 				if (RetVal == 0)
 				{	
 					Params[i]->Value = std::to_string(ImportProtocolID);
-					int pos = 0;
-					pos = Params[i]->Value.find(",", pos);
-					Params[i]->Value.erase(pos, Params[i]->Value.length() - pos);
+					int Position = 0;
+					Position = Params[i]->Value.find(",", Position);
+					Params[i]->Value.erase(Position, Params[i]->Value.length() - Position);
 				}
 				else
 					throw SQLException("\n ERROR: ImportProtocol_Insert returned retval!\n", retcode);
@@ -1333,31 +1346,38 @@ void FALoad::PrepareFormula(std::string &Formula, std::vector<Param *> &Params)
 			}
 
 			// Change formula's text
-			std::string finding_str;
+			std::string FindingString;
 
-			finding_str = std::string("%") + std::to_string(static_cast<int>(Params[i]->Number)) + std::string("!");
+			FindingString = std::string("%") + std::to_string(static_cast<int>(Params[i]->Number)) + std::string("!");
 
 			if (ShowDiagInfo)
-			  std::cout << "\n finding str " << finding_str;
-
-			int cur_pos = 0;
-
-			while ((cur_pos = Formula.find(finding_str, cur_pos)) != std::string::npos)
 			{
-				Formula.replace(cur_pos, finding_str.length(), Params[i]->Value);
-				cur_pos++;
+				ProcLogMessage = "Finding string " + FindingString;
+				ProcLogWriter.Push(ProcLogMessage, INFO_MESSAGE, true);
+			}
+		
+
+			int CurrentPosition = 0;
+
+			while ((CurrentPosition = Formula.find(FindingString, CurrentPosition)) != std::string::npos)
+			{
+				Formula.replace(CurrentPosition, FindingString.length(), Params[i]->Value);
+				CurrentPosition++;
 			}
 
-			cur_pos = 0;
+			CurrentPosition = 0;
 
             // Set nocount setting, if not setted.
-			std::string nocount_on_str = " set nocount on ";
-			if (cur_pos = Formula.find(nocount_on_str, cur_pos) == std::string::npos)
-				Formula.insert(0, nocount_on_str);
+			std::string NocountOn = " set nocount on ";
+			if (CurrentPosition = Formula.find(NocountOn, CurrentPosition) == std::string::npos)
+				Formula.insert(0, NocountOn);
 
 		}
 		if (ShowDiagInfo)
-		  std::cout << "\nPrepared formula's text: \n" << Formula;
+		{
+			ProcLogMessage = "Prepared formula's text: \n" + Formula;
+			ProcLogWriter.Push(ProcLogMessage, INFO_MESSAGE, true);
+		}
 
 	}
 	catch (SQLException &ex)
@@ -1421,7 +1441,6 @@ void FALoad::ExecuteFormula(std::string &Formula)
 			}
 		} while (mrRetcode = SQLMoreResults == SQL_SUCCESS);
 
-		//std::cout << "\n RetVal " << RetVal;
 
 		retcode = SQLFreeStmt(hstmt, SQL_CLOSE);
 		if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)

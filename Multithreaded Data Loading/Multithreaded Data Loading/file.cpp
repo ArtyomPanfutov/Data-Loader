@@ -13,20 +13,20 @@
 
 // Constructor
 /////////////////////////////////////////////////////////////////
-file::file(std::string &filename, std::string &inputpath, std::string &savepath)
-	: inputfile(filename), inputpath(inputpath), savepath(savepath)
+File::File(std::string &filename, std::string &InputPath, std::string &OutputPath)
+	: InputFileName(filename), InputPath(InputPath), OutputPath(OutputPath)
 {  
-	outputfile = filename + ".out";
-	savedfile = filename + ".sav";
+	OutputFileName = filename + ".out";
+	SavedFileName = filename + ".sav";
 }
 // End of constructor
 //---------------------------------------------------------------
 
 // Destructor 
 ////////////////////////////////////////////////////////////////
-file::~file()
+File::~File()
 {
-	text_str.clear();
+	LinesFromFile.clear();
 }
 // End of destructor
 ////////////////////////////////////////////////////////////////
@@ -35,26 +35,25 @@ file::~file()
 
 // preparefile()
 ///////////////////////////////////////////////////////////////
-void file::preparefile( std::vector< FALoad *> Loadvec, std::string &fieldterm, std::string &rowterm)
+void File::preparefile( std::vector< FALoad *> Loadvec, std::string &fieldterm, std::string &rowterm)
 {
-
 	unsigned long
 		batch = 0,
 		strings_in_file = 0,
 		threads = 0;
 
-	std::ifstream file(this->inputfile);
+	std::ifstream File(this->InputFileName);
 	std::string cur_str;
 	
 
-	std::ofstream copy_out(outputfile, std::ios_base::out | std::ios_base::trunc);
-	std::ofstream fout(outputfile, std::ios_base::out | std::ios_base::trunc);
+	std::ofstream copy_out(OutputFileName, std::ios_base::out | std::ios_base::trunc);
+	std::ofstream fout(OutputFileName, std::ios_base::out | std::ios_base::trunc);
 
 	std::string::size_type pos{};
 	size_t count{};
 
 	std::vector<std::string> from_file;
-	while (getline(file, cur_str))
+	while (getline(File, cur_str))
 	{
 		//file >> cur_str;
 		
@@ -109,7 +108,7 @@ void file::preparefile( std::vector< FALoad *> Loadvec, std::string &fieldterm, 
 	}
 
 
-	file.close();
+	File.close();
 	fout.close();
 
 
@@ -118,34 +117,34 @@ void file::preparefile( std::vector< FALoad *> Loadvec, std::string &fieldterm, 
 
 // PutStrIntoVector
 //////////////////////////////////////////////////////////////
-void file::PutStrIntoVector()
+void File::PutStrIntoVector()
 {
-  std::ifstream file;
+  std::ifstream File;
 
-  file.open(this->inputfile, std::ifstream::in);
+  File.open(this->InputFileName, std::ifstream::in);
 
-  if (!file.is_open())
+  if (!File.is_open())
 	  throw std::exception("\n ERROR: Cannot open input file! \n"); 
  
 
   std::string cur_str;
 
-  text_str.erase(text_str.cbegin(), text_str.cend());
+  LinesFromFile.erase(LinesFromFile.cbegin(), LinesFromFile.cend());
 
-  while (getline(file, cur_str))
+  while (getline(File, cur_str))
   {
-	  text_str.push_back(cur_str);
+	  LinesFromFile.push_back(cur_str);
   }
 
-  file.close();
+  File.close();
 } // End of PutStrIntoVector
 //------------------------------------------------------------
 
 
 // GetCountOfStrings()
 ///////////////////////////////////////////////////////////////
-unsigned int file::GetCountOfStrings()
+unsigned int File::GetCountOfStrings()
 {
-	return this->text_str.size();
+	return this->LinesFromFile.size();
 } // End of GetCountOfStrings
 //-------------------------------------------------------------

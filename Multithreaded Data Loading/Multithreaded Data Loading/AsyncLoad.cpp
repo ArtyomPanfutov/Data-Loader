@@ -14,7 +14,7 @@
 *************** Definiton of methods. Class AsyncLoad ******************
 ***********************************************************************/
 
-std::string AsyncLogFileName = "AsyncProcessingLog.txt";
+std::string AsyncLogFileName = "LoadLog.txt";
 std::string AsyncLogMessage;
 Log AsyncLoadLogWriter(AsyncLogFileName);
 
@@ -39,9 +39,6 @@ AsyncLoad::~AsyncLoad()
 ///////////////////////////////////////////////////////////////////////
 void AsyncLoad::RunLoadsInAsyncMode(std::vector <FALoad *> &Loads, unsigned long i)
 {
-	AsyncLogMessage = "Function RunLoadsInAsyncMode. Nested level: " + std::to_string(i);
-	AsyncLoadLogWriter.Push(AsyncLogMessage, INFO_MESSAGE, true);
-
 	SQLRETURN sql_retcode = 0, mrRetcode;
 
 	SQLINTEGER cbRetVal;
@@ -53,15 +50,18 @@ void AsyncLoad::RunLoadsInAsyncMode(std::vector <FALoad *> &Loads, unsigned long
 
 	size_t CountOfLoads = Loads.size();
 
-	AsyncLogMessage = "Number of loads: " + std::to_string(CountOfLoads);
-	AsyncLoadLogWriter.Push(AsyncLogMessage, INFO_MESSAGE, true);
-
 	input_i = i;
 	
 	try
 	{
 		if (input_i < CountOfLoads)
 		{
+			AsyncLogMessage = "Function RunLoadsInAsyncMode. Nested level: " + std::to_string(i);
+			AsyncLoadLogWriter.Push(AsyncLogMessage, INFO_MESSAGE, true);
+
+			AsyncLogMessage = "Number of loads: " + std::to_string(CountOfLoads);
+			AsyncLoadLogWriter.Push(AsyncLogMessage, INFO_MESSAGE, true);
+
 			CurSTMT = Loads[input_i]->GetHSTMT();
 
 			AsyncLogMessage = "Processing with SPID: " + std::to_string(Loads[input_i]->SPID);
@@ -132,7 +132,8 @@ void AsyncLoad::RunLoadsInAsyncMode(std::vector <FALoad *> &Loads, unsigned long
 				}
 			} while (mrRetcode = SQLMoreResults == SQL_SUCCESS);
 
-			AsyncLogMessage = " Postprocess formula has been executed. Return value: " + std::to_string(RetVal) + ". Processing SPID: " + std::to_string(Loads[input_i]->SPID);
+			AsyncLogMessage = "Postprocess formula has been executed. Return value: " + std::to_string(RetVal) + ". Processing SPID: " + std::to_string(Loads[input_i]->SPID);
+			AsyncLoadLogWriter.Push(AsyncLogMessage, INFO_MESSAGE, true);
 
 			sql_retcode = SQLSetStmtAttr(CurSTMT, SQL_ATTR_ASYNC_ENABLE, reinterpret_cast<SQLPOINTER>(SQL_ASYNC_ENABLE_OFF), 0);
 			if (sql_retcode != SQL_SUCCESS && sql_retcode != SQL_SUCCESS_WITH_INFO)

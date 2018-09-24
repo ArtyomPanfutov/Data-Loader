@@ -18,8 +18,8 @@
 *************** Definiton of methods. Class InputAttribute *************
 ***********************************************************************/
 
-std::string LogFileName = "InputLog.txt";
-Log LogWriter(LogFileName);
+std::string LogFileName = "LoadLog.txt";
+Log InputLogWriter(LogFileName);
 
 // Constructor of InputAttribute
 ////////////////////////////////////////////////////////////////////////
@@ -469,7 +469,7 @@ void InputAttribute::DisplayAllAttributes()
 	            "\n 8. BranchID - " + std::to_string(this->GetBranchID()) +
 	            "\n\n";
 	std::cout << ToDisplay;
-	LogWriter.WriteIntoFile(ToDisplay);
+	InputLogWriter.WriteIntoFile(ToDisplay);
 	
  } // End if DisplayAllAttributes
 //----------------------------------------------------------------------

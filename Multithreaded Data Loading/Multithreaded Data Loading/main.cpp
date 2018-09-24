@@ -1,7 +1,9 @@
+//
 // main.cpp 
 // created: 2018-07-21
-// modified: 2018-09-20
+// modified: 2018-09-24
 // author: Artyom Panfutov
+//
 
 #include <iostream>
 #include <cstdlib>
@@ -28,10 +30,11 @@ int main()
 
 	std::string LogFileName = "LoadLog.txt";
 	Log LogWriter(LogFileName);
+	LogWriter.ClearFile();
 
 	std::cout <<
 		"\n\n *******************************************************************************\n"
-		"\n                         Asynchronous Data Loader                                   "
+		"\n                              Asynchronous Data Loader                                   "
 		"\n\n *******************************************************************************\n";
 
 	try
@@ -43,8 +46,8 @@ int main()
 		  
 		std::string
 			FileName = UserInfo.GetFileName(),
-			inputpath,
-			savepath,
+			InputPath,
+			OutputPath,
 			ToDisplay,
 			RowTerminator = "\r\n",
 			FieldTerminator;
@@ -52,7 +55,7 @@ int main()
 		std::string LoadBrief;
 		LoadBrief = UserInfo.GetLoadBrief();
 
-		file DataFile(FileName, inputpath, savepath);
+		File DataFile(FileName, InputPath, OutputPath);
 
 		unsigned int
 			CountOfStrings,
@@ -97,35 +100,35 @@ int main()
 			" The object " + LoadBrief + std::string(" Number: ") + std::to_string(i) + " created! \n\n";
 			LogWriter.Push(ToDisplay, INFO_MESSAGE, true);
 
-			// Don't forget to rewrite this part (too many identical queries to server)
+			// TODO: rewrite this part (too many identical queries to server)
 			CurrentThread->DriverConnectAndAllocHandle(ConnectionString);
 			CurrentThread->GetSPID();
 
-			ToDisplay = " Connection SPID: " + std::to_string(CurrentThread->SPID);
+			ToDisplay = "Connection SPID: " + std::to_string(CurrentThread->SPID);
 			LogWriter.Push(ToDisplay, INFO_MESSAGE, true);
 
 			CurrentThread->SetLoadBrief(LoadBrief);
 
-			ToDisplay = " Getting Diasoft data types... ";
+			ToDisplay = "Getting Diasoft data types... ";
 			LogWriter.Push(ToDisplay, INFO_MESSAGE, true);
 
 			CurrentThread->GetDSTypesFromDB();
 
-			ToDisplay = " Getting attributes of load... ";
+			ToDisplay = "Getting attributes of load... ";
 			LogWriter.Push(ToDisplay, INFO_MESSAGE, true);
 
 			CurrentThread->GetLoadInfo();
 			CurrentThread->GetSetupParamsFromDB();
 			CurrentThread->GetLastParamsFromDB();
 
-			ToDisplay = " Preparing formula... ";
+			ToDisplay = "Preparing formula... ";
 			LogWriter.Push(ToDisplay, INFO_MESSAGE, true);
 
 			// Uses params from the front thread, because they are identical to all threads 
 			CurrentThread->PrepareFormula(CurrentThread->LastFormulaStr, FirstThread->LastFormulaParams);
 			CurrentThread->PrepareFormula(CurrentThread->SetupFormulaStr, FirstThread->SetupFormulaParams);
 
-			ToDisplay = " Preparing of the object " + LoadBrief + std::string(" Number: ") + std::to_string(i) + " is completed!";
+			ToDisplay = "Preparing of the object " + LoadBrief + std::string(" Number: ") + std::to_string(i) + " is completed!";
 			LogWriter.Push(ToDisplay, INFO_MESSAGE, true);
 		}
 
@@ -149,7 +152,7 @@ int main()
 			CurrentThread = MainObj.FALoads[i];
 			CurrentThread->ExecuteFormula(CurrentThread->SetupFormulaStr);
 
-			ToDisplay = " Start BCP push for object " + LoadBrief + std::string(" Number: ") + std::to_string(i) + "\n Lines [" + std::to_string(FirstRow) + ".." + std::to_string(LastRow) + "]";
+			ToDisplay = "Start BCP push for object " + LoadBrief + std::string(" Number: ") + std::to_string(i) + "\n Lines [" + std::to_string(FirstRow) + ".." + std::to_string(LastRow) + "]";
 			LogWriter.Push(ToDisplay, INFO_MESSAGE, true);
 
 			RowsDone = CurrentThread->StartBCP(
@@ -157,9 +160,9 @@ int main()
 				RowTerminator,
 				FirstRow,
 				LastRow,
-				DataFile.text_str);
+				DataFile.LinesFromFile);
 
-			ToDisplay = " BCP load for object " + LoadBrief + std::string(" Number: ") + std::to_string(i) + " is completed! \n"
+			ToDisplay = "BCP load for object " + LoadBrief + std::string(" Number: ") + std::to_string(i) + " is completed! \n"
 				        "\n *******************************************************************************\n";
 
 			LogWriter.Push(ToDisplay, INFO_MESSAGE, true);
