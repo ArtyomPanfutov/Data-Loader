@@ -26,6 +26,7 @@ class AsyncLoad
 
 	  void RunLoadsInAsyncMode(std::vector <FALoad *> &, unsigned long);
 	  void Message(std::string &);
+	  SQLRETURN ExecuteSQL(SQLHSTMT CurSTMT, SQLCHAR* Statement, SQLINTEGER TextLength, FALoad *Load);
 
 };
 

@@ -1,6 +1,8 @@
+//
 // AsyncLoad.cpp
 // created: 2018-08-12
 // author: Artyom Panfutov
+//
 
 #include "AsyncLoad.h"
 #include <vector>
@@ -37,84 +39,89 @@ AsyncLoad::~AsyncLoad()
 
 // RunLoadsInAsyncMode
 ///////////////////////////////////////////////////////////////////////
-void AsyncLoad::RunLoadsInAsyncMode(std::vector <FALoad *> &Loads, unsigned long i)
+void AsyncLoad::RunLoadsInAsyncMode(std::vector <FALoad *> &Loads, unsigned long Level)
 {
-	SQLRETURN sql_retcode = 0, mrRetcode;
+	SQLRETURN SqlReturnCode = 0, mrRetcode;
 
 	SQLINTEGER cbRetVal;
 
 	SQLHSTMT CurSTMT;
 
 	unsigned int RetVal = 0;
-	unsigned long input_i;
+	unsigned long InputLevel;
 
 	size_t CountOfLoads = Loads.size();
-
-	input_i = i;
-	
+	InputLevel = Level;
 	try
 	{
-		if (input_i < CountOfLoads)
+		if (InputLevel < CountOfLoads) 
 		{
-			AsyncLogMessage = "Function RunLoadsInAsyncMode. Nested level: " + std::to_string(i);
+			AsyncLogMessage = "Function RunLoadsInAsyncMode. Nested level: " + std::to_string(Level);
 			AsyncLoadLogWriter.Push(AsyncLogMessage, INFO_MESSAGE, true);
 
 			AsyncLogMessage = "Number of loads: " + std::to_string(CountOfLoads);
 			AsyncLoadLogWriter.Push(AsyncLogMessage, INFO_MESSAGE, true);
 
-			CurSTMT = Loads[input_i]->GetHSTMT();
+			CurSTMT = Loads[InputLevel]->GetHSTMT();
 
-			AsyncLogMessage = "Processing with SPID: " + std::to_string(Loads[input_i]->SPID);
+			AsyncLogMessage = "Processing with SPID: " + std::to_string(Loads[InputLevel]->SPID);
 			AsyncLoadLogWriter.Push(AsyncLogMessage, INFO_MESSAGE, true);
 
 			// Set async mode on.
-			sql_retcode = SQLSetStmtAttr(
+			SqlReturnCode = SQLSetStmtAttr(
 				CurSTMT,
 				SQL_ATTR_ASYNC_ENABLE, 
 				reinterpret_cast<SQLPOINTER>(SQL_ASYNC_ENABLE_ON), 
 				0);
 
-			if (sql_retcode != SQL_SUCCESS && sql_retcode != SQL_SUCCESS_WITH_INFO)
-				throw SQLException("\n ERROR: RunLoadsInAsyncMode failed! SQLSetStmtAttr(ASYNC_ENABLE ON)\n", sql_retcode);
+			if (SqlReturnCode != SQL_SUCCESS && SqlReturnCode != SQL_SUCCESS_WITH_INFO)
+				throw SQLException("\n ERROR: RunLoadsInAsyncMode failed! SQLSetStmtAttr(ASYNC_ENABLE ON)\n", SqlReturnCode);
 
 			AsyncLogMessage = "Asynchronous mode enabled";
 			AsyncLoadLogWriter.Push(AsyncLogMessage, INFO_MESSAGE, true);
 
-			// Execute all loads in async mode.
-			while ((sql_retcode = SQLExecDirect(CurSTMT, (unsigned char*)Loads[input_i]->LastFormulaStr.c_str(), SQL_NTS)) == SQL_STILL_EXECUTING)
+			SQLRETURN returnval;
+
+            
+			Level++;
+			if (Level < CountOfLoads)
 			{
-				if (i < CountOfLoads)
-				{
-					i++;
+				AsyncLogMessage = "Waiting for " + std::to_string(this->OffsetTime) + " ms.";
+				AsyncLoadLogWriter.Push(AsyncLogMessage, INFO_MESSAGE, true);
 
-					AsyncLogMessage = "Waiting for " + std::to_string(this->OffsetTime) + " ms.";
-					AsyncLoadLogWriter.Push(AsyncLogMessage, INFO_MESSAGE, true);
-
-					// Wait for offset time...
-					Sleep(this->OffsetTime);
-
-					// And go.
-					RunLoadsInAsyncMode(Loads, i);
-				}
-
+				// Start next load
+				RunLoadsInAsyncMode(Loads, Level);
 			}
+	
+			// Wait for finish
+			while (true)
+			{
+				SqlReturnCode = this->ExecuteSQL(CurSTMT, (unsigned char*)Loads[InputLevel]->LastFormulaStr.c_str(), SQL_NTS, Loads[InputLevel]);
+
+				if (SqlReturnCode != SQL_STILL_EXECUTING)
+				{
+					Loads[InputLevel]->IsExecuted = true;
+					break;
+				}
+			}
+
 
 			// Get the returned value from the executed formula.
 			do
 			{
-				if (sql_retcode == SQL_SUCCESS)
+				if (SqlReturnCode == SQL_SUCCESS)
 				{
 					while (TRUE)
 					{
-						sql_retcode = SQLFetch(CurSTMT);
+						SqlReturnCode = SQLFetch(CurSTMT);
 
-						if (sql_retcode == SQL_ERROR )
-							throw SQLException("\n ERROR: RunLoadsInAsyncMode failed! SQLFetch\n", sql_retcode);
+						if (SqlReturnCode == SQL_ERROR )
+							throw SQLException("\n ERROR: RunLoadsInAsyncMode failed! SQLFetch\n", SqlReturnCode);
 
-						else if (sql_retcode == SQL_SUCCESS)
+						else if (SqlReturnCode == SQL_SUCCESS)
 						{
 							// RetVal
-							sql_retcode = SQLGetData(
+							SqlReturnCode = SQLGetData(
 								CurSTMT,
 								1,
 								SQL_C_ULONG,
@@ -122,8 +129,8 @@ void AsyncLoad::RunLoadsInAsyncMode(std::vector <FALoad *> &Loads, unsigned long
 								10,
 								&cbRetVal);
 
-							if (sql_retcode != SQL_SUCCESS)
-								throw SQLException("\n ERROR: RunLoadsInAsyncMode failed! SQLGetData(RetVal)\n", sql_retcode);
+							if (SqlReturnCode != SQL_SUCCESS)
+								throw SQLException("\n ERROR: RunLoadsInAsyncMode failed! SQLGetData(RetVal)\n", SqlReturnCode);
 						}
 						else
 							break;
@@ -132,27 +139,46 @@ void AsyncLoad::RunLoadsInAsyncMode(std::vector <FALoad *> &Loads, unsigned long
 				}
 			} while (mrRetcode = SQLMoreResults == SQL_SUCCESS);
 
-			AsyncLogMessage = "Postprocess formula has been executed. Return value: " + std::to_string(RetVal) + ". Processing SPID: " + std::to_string(Loads[input_i]->SPID);
+			AsyncLogMessage = "Postprocess formula has been executed. Return value: " + std::to_string(RetVal) + ". Processing SPID: " + std::to_string(Loads[InputLevel]->SPID);
 			AsyncLoadLogWriter.Push(AsyncLogMessage, INFO_MESSAGE, true);
 
-			sql_retcode = SQLSetStmtAttr(CurSTMT, SQL_ATTR_ASYNC_ENABLE, reinterpret_cast<SQLPOINTER>(SQL_ASYNC_ENABLE_OFF), 0);
-			if (sql_retcode != SQL_SUCCESS && sql_retcode != SQL_SUCCESS_WITH_INFO)
-				throw SQLException("\n ERROR: RunLoadsInAsyncMode failed! SQLSetStmtAttr(ASYNC_ENABLE)\n", sql_retcode);
+			SqlReturnCode = SQLSetStmtAttr(CurSTMT, SQL_ATTR_ASYNC_ENABLE, reinterpret_cast<SQLPOINTER>(SQL_ASYNC_ENABLE_OFF), 0);
+			if (SqlReturnCode != SQL_SUCCESS && SqlReturnCode != SQL_SUCCESS_WITH_INFO)
+				throw SQLException("\n ERROR: SqlReturnCode failed! SQLSetStmtAttr(ASYNC_ENABLE)\n", SqlReturnCode);
 
-			sql_retcode = SQLFreeStmt(CurSTMT, SQL_CLOSE);
-			if (sql_retcode != SQL_SUCCESS && sql_retcode != SQL_SUCCESS_WITH_INFO)
-				throw SQLException("\n ERROR: ExecuteFormula failed! SQLFreeStmt failed!\n", sql_retcode);
+			SqlReturnCode = SQLFreeStmt(CurSTMT, SQL_CLOSE);
+			if (SqlReturnCode != SQL_SUCCESS && SqlReturnCode != SQL_SUCCESS_WITH_INFO)
+				throw SQLException("\n ERROR: ExecuteFormula failed! SQLFreeStmt failed!\n", SqlReturnCode);
 	
 		}
 	}
 	catch (SQLException &ex)
 	{
-		ex.ShowMessage(Loads[input_i]->GetHSTMT());
+		ex.ShowMessage(Loads[InputLevel]->GetHSTMT());
 	}
+
 
 } // End of RunLoadsInAsyncMode
 //--------------------------------------------------------------------
 
+// ExecuteSQL
+///////////////////////////////////////////////////////////////////////
+SQLRETURN AsyncLoad::ExecuteSQL(SQLHSTMT CurSTMT, SQLCHAR* Statement, SQLINTEGER TextLength, FALoad *Load)
+{
+	//
+	// Wrapper for SQLExecDirect. 
+	// Returns 0 or value from SQLExecDirect
+	//
+
+	SQLRETURN RetVal;
+
+	if (!Load->IsExecuted)
+		RetVal = SQLExecDirect(CurSTMT, (unsigned char*)Load->LastFormulaStr.c_str(), SQL_NTS);
+	else
+		RetVal = 0;
+	return RetVal;
+} // End of ExecuteSQL
+//--------------------------------------------------------------------
 
 
 // Message

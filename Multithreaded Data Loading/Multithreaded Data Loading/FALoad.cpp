@@ -30,6 +30,8 @@ FALoad::FALoad(std::string &filename, bool ShowDiag, unsigned long Branch) : Con
 	this->BranchID = Branch;
 
 	this->FileName = filename; // For formula's parameter(FileName)
+
+	this->IsExecuted = false;
 }
 // End of constructor FALoader()
 // ---------------------------------------------------------------------
@@ -983,9 +985,9 @@ unsigned long FALoad::StartBCP(
 
 	unsigned long 
 		CurrentColumnNumber = 0,
-		CurrentPosition = 0,
-		LastPosition = 0,
-		LineNumber = 1;
+		CurrentPosition     = 0,
+		LastPosition        = 0,
+		LineNumber          = 1; 
 
 	char *chColumn;  
 	char Terminator = '\0';
@@ -1437,7 +1439,6 @@ void FALoad::ExecuteFormula(std::string &Formula)
 					else
 						break;
 				}
-
 			}
 		} while (mrRetcode = SQLMoreResults == SQL_SUCCESS);
 

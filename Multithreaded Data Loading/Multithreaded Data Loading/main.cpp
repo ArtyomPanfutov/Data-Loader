@@ -101,7 +101,7 @@ int main()
 			" The object " + LoadBrief + std::string(" Number: ") + std::to_string(i) + " created! \n\n";
 			LogWriter.Push(ToDisplay, INFO_MESSAGE, true);
 
-			// TODO: rewrite this part (too many identical queries to server)
+			// TODO: rewrite this part (too many identical queries to the server)
 			CurrentThread->DriverConnectAndAllocHandle(ConnectionString);
 			CurrentThread->GetSPID();
 
@@ -153,7 +153,7 @@ int main()
 			CurrentThread = MainObj.FALoads[i];
 			CurrentThread->ExecuteFormula(CurrentThread->SetupFormulaStr);
 
-			ToDisplay = "Start BCP push for object " + LoadBrief + std::string(" Number: ") + std::to_string(i) + "\n Lines [" + std::to_string(FirstRow) + ".." + std::to_string(LastRow) + "]";
+			ToDisplay = "Start BCP. Pushing object " + LoadBrief + std::string(" Number: ") + std::to_string(i) + "\n Lines [" + std::to_string(FirstRow) + ".." + std::to_string(LastRow) + "]";
 			LogWriter.Push(ToDisplay, INFO_MESSAGE, true);
 
 			RowsDone = CurrentThread->StartBCP(
@@ -163,7 +163,7 @@ int main()
 				LastRow,
 				DataFile.LinesFromFile);
 
-			ToDisplay = "BCP load for object " + LoadBrief + std::string(" Number: ") + std::to_string(i) + " is completed! \n"
+			ToDisplay = "BCP importing for object " + LoadBrief + std::string(" Number: ") + std::to_string(i) + " is completed! \n"
 				        "\n *******************************************************************************\n";
 
 			LogWriter.Push(ToDisplay, INFO_MESSAGE, true);

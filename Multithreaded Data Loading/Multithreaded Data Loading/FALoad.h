@@ -43,7 +43,8 @@ class FALoad : public Connection
 	std::vector <int *> ColumnsLen;           // Длина столбцов 
 	std::vector <bool> IsNumeric;             // Тип данных столбца числовой или не числовой
 
-	bool ShowDiagInfo;
+	bool ShowDiagInfo,
+		 IsExecuted;
 
 	SQLINTEGER
 		DSBRIEFNAME_Length,
