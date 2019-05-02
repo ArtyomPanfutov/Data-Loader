@@ -59,9 +59,7 @@ void SQLException::ShowMessage(SQLHSTMT hstmt)
 		                                             &MsgLen)) != SQL_NO_DATA )
 		i++; 
 
-  //std::cout << this->what() << std::endl;
-  //std::cout << "RetVal: " << RetVal << std::endl << std::endl;
-  //std::cout << "Native Error: " << NativeError << std::endl << "SQL State: " << SQLState << std::endl << Msg << std::endl << std::endl << std::endl;
+  
 	ExceptionLogMessage =
 		this->what() +
 		std::string("\n ") +

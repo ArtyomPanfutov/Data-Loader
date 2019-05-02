@@ -24,10 +24,11 @@ class AsyncLoad
 	  unsigned long ProcessingRange;
 	  unsigned int OffsetTime;
 
-	  void RunLoadsInAsyncMode(std::vector <FALoad *> &, unsigned long);
+      void RunLoadsInAsyncMode(std::vector <FALoad *> &, unsigned long);   // Obsolete method!
+	  void CreateThreadsAndRun(std::vector <FALoad *> &Loads);             // New processing method
+	  static void SQLTask(SQLHSTMT CurSTMT, SQLCHAR* Statement, int ThreadNumber, int ThreadSPID);
 	  void Message(std::string &);
 	  SQLRETURN ExecuteSQL(SQLHSTMT CurSTMT, SQLCHAR* Statement, SQLINTEGER TextLength, FALoad *Load);
-
 };
 
 #endif // ASYNCLOAD_H

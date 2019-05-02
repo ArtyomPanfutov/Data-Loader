@@ -1,0 +1,378 @@
+
+
+
+ Input data: 
+ 1. Server   - apanfutov-note
+ 2. Database - Carolina
+ 3. User     - diasoft
+ 4. Driver   - SQL Server Native Client 11.0
+ 5. File     - test.txt
+ 6. Threads  - 20
+ 7. Brief    - Клиенты
+ 8. BranchID - 2000
+
+
+ [INFO] [2019-05-03.2:25:36] Lines to process: 609
+ [INFO] [2019-05-03.2:25:36] Creating objects for loads... Batch: 39
+
+ [INFO] [2019-05-03.2:25:36] 
+ *******************************************************************************
+
+ [INFO] [2019-05-03.2:25:36] Connection SPID: 58
+ [INFO] [2019-05-03.2:25:36] Getting Diasoft data types... 
+ [INFO] [2019-05-03.2:25:36] Getting attributes of load... 
+ [INFO] [2019-05-03.2:25:36] Preparing formula... 
+ [INFO] [2019-05-03.2:25:37] Preparing of the object Клиенты Number: 0 is completed!
+ [INFO] [2019-05-03.2:25:37] 
+ *******************************************************************************
+
+ [INFO] [2019-05-03.2:25:37] Connection SPID: 59
+ [INFO] [2019-05-03.2:25:37] Getting Diasoft data types... 
+ [INFO] [2019-05-03.2:25:37] Getting attributes of load... 
+ [INFO] [2019-05-03.2:25:37] Preparing formula... 
+ [INFO] [2019-05-03.2:25:37] Preparing of the object Клиенты Number: 1 is completed!
+ [INFO] [2019-05-03.2:25:37] 
+ *******************************************************************************
+
+ [INFO] [2019-05-03.2:25:37] Connection SPID: 60
+ [INFO] [2019-05-03.2:25:37] Getting Diasoft data types... 
+ [INFO] [2019-05-03.2:25:37] Getting attributes of load... 
+ [INFO] [2019-05-03.2:25:37] Preparing formula... 
+ [INFO] [2019-05-03.2:25:38] Preparing of the object Клиенты Number: 2 is completed!
+ [INFO] [2019-05-03.2:25:38] 
+ *******************************************************************************
+
+ [INFO] [2019-05-03.2:25:38] Connection SPID: 61
+ [INFO] [2019-05-03.2:25:38] Getting Diasoft data types... 
+ [INFO] [2019-05-03.2:25:38] Getting attributes of load... 
+ [INFO] [2019-05-03.2:25:38] Preparing formula... 
+ [INFO] [2019-05-03.2:25:38] Preparing of the object Клиенты Number: 3 is completed!
+ [INFO] [2019-05-03.2:25:38] 
+ *******************************************************************************
+
+ [INFO] [2019-05-03.2:25:38] Connection SPID: 62
+ [INFO] [2019-05-03.2:25:38] Getting Diasoft data types... 
+ [INFO] [2019-05-03.2:25:38] Getting attributes of load... 
+ [INFO] [2019-05-03.2:25:38] Preparing formula... 
+ [INFO] [2019-05-03.2:25:38] Preparing of the object Клиенты Number: 4 is completed!
+ [INFO] [2019-05-03.2:25:38] 
+ *******************************************************************************
+
+ [INFO] [2019-05-03.2:25:38] Connection SPID: 63
+ [INFO] [2019-05-03.2:25:38] Getting Diasoft data types... 
+ [INFO] [2019-05-03.2:25:38] Getting attributes of load... 
+ [INFO] [2019-05-03.2:25:38] Preparing formula... 
+ [INFO] [2019-05-03.2:25:38] Preparing of the object Клиенты Number: 5 is completed!
+ [INFO] [2019-05-03.2:25:38] 
+ *******************************************************************************
+
+ [INFO] [2019-05-03.2:25:38] Connection SPID: 64
+ [INFO] [2019-05-03.2:25:38] Getting Diasoft data types... 
+ [INFO] [2019-05-03.2:25:38] Getting attributes of load... 
+ [INFO] [2019-05-03.2:25:38] Preparing formula... 
+ [INFO] [2019-05-03.2:25:38] Preparing of the object Клиенты Number: 6 is completed!
+ [INFO] [2019-05-03.2:25:38] 
+ *******************************************************************************
+
+ [INFO] [2019-05-03.2:25:38] Connection SPID: 65
+ [INFO] [2019-05-03.2:25:38] Getting Diasoft data types... 
+ [INFO] [2019-05-03.2:25:38] Getting attributes of load... 
+ [INFO] [2019-05-03.2:25:38] Preparing formula... 
+ [INFO] [2019-05-03.2:25:38] Preparing of the object Клиенты Number: 7 is completed!
+ [INFO] [2019-05-03.2:25:38] 
+ *******************************************************************************
+
+ [INFO] [2019-05-03.2:25:38] Connection SPID: 66
+ [INFO] [2019-05-03.2:25:38] Getting Diasoft data types... 
+ [INFO] [2019-05-03.2:25:38] Getting attributes of load... 
+ [INFO] [2019-05-03.2:25:38] Preparing formula... 
+ [INFO] [2019-05-03.2:25:38] Preparing of the object Клиенты Number: 8 is completed!
+ [INFO] [2019-05-03.2:25:38] 
+ *******************************************************************************
+
+ [INFO] [2019-05-03.2:25:38] Connection SPID: 67
+ [INFO] [2019-05-03.2:25:38] Getting Diasoft data types... 
+ [INFO] [2019-05-03.2:25:38] Getting attributes of load... 
+ [INFO] [2019-05-03.2:25:38] Preparing formula... 
+ [INFO] [2019-05-03.2:25:38] Preparing of the object Клиенты Number: 9 is completed!
+ [INFO] [2019-05-03.2:25:38] 
+ *******************************************************************************
+
+ [INFO] [2019-05-03.2:25:38] Connection SPID: 69
+ [INFO] [2019-05-03.2:25:38] Getting Diasoft data types... 
+ [INFO] [2019-05-03.2:25:38] Getting attributes of load... 
+ [INFO] [2019-05-03.2:25:38] Preparing formula... 
+ [INFO] [2019-05-03.2:25:38] Preparing of the object Клиенты Number: 10 is completed!
+ [INFO] [2019-05-03.2:25:38] 
+ *******************************************************************************
+
+ [INFO] [2019-05-03.2:25:38] Connection SPID: 70
+ [INFO] [2019-05-03.2:25:38] Getting Diasoft data types... 
+ [INFO] [2019-05-03.2:25:38] Getting attributes of load... 
+ [INFO] [2019-05-03.2:25:38] Preparing formula... 
+ [INFO] [2019-05-03.2:25:39] Preparing of the object Клиенты Number: 11 is completed!
+ [INFO] [2019-05-03.2:25:39] 
+ *******************************************************************************
+
+ [INFO] [2019-05-03.2:25:39] Connection SPID: 71
+ [INFO] [2019-05-03.2:25:39] Getting Diasoft data types... 
+ [INFO] [2019-05-03.2:25:39] Getting attributes of load... 
+ [INFO] [2019-05-03.2:25:39] Preparing formula... 
+ [INFO] [2019-05-03.2:25:39] Preparing of the object Клиенты Number: 12 is completed!
+ [INFO] [2019-05-03.2:25:39] 
+ *******************************************************************************
+
+ [INFO] [2019-05-03.2:25:39] Connection SPID: 72
+ [INFO] [2019-05-03.2:25:39] Getting Diasoft data types... 
+ [INFO] [2019-05-03.2:25:39] Getting attributes of load... 
+ [INFO] [2019-05-03.2:25:39] Preparing formula... 
+ [INFO] [2019-05-03.2:25:39] Preparing of the object Клиенты Number: 13 is completed!
+ [INFO] [2019-05-03.2:25:39] 
+ *******************************************************************************
+
+ [INFO] [2019-05-03.2:25:39] Connection SPID: 73
+ [INFO] [2019-05-03.2:25:39] Getting Diasoft data types... 
+ [INFO] [2019-05-03.2:25:39] Getting attributes of load... 
+ [INFO] [2019-05-03.2:25:39] Preparing formula... 
+ [INFO] [2019-05-03.2:25:39] Preparing of the object Клиенты Number: 14 is completed!
+ [INFO] [2019-05-03.2:25:39] 
+ *******************************************************************************
+
+ [INFO] [2019-05-03.2:25:39] Connection SPID: 74
+ [INFO] [2019-05-03.2:25:39] Getting Diasoft data types... 
+ [INFO] [2019-05-03.2:25:39] Getting attributes of load... 
+ [INFO] [2019-05-03.2:25:39] Preparing formula... 
+ [INFO] [2019-05-03.2:25:39] Preparing of the object Клиенты Number: 15 is completed!
+ [INFO] [2019-05-03.2:25:39] 
+ *******************************************************************************
+
+ [INFO] [2019-05-03.2:25:39] Connection SPID: 75
+ [INFO] [2019-05-03.2:25:39] Getting Diasoft data types... 
+ [INFO] [2019-05-03.2:25:39] Getting attributes of load... 
+ [INFO] [2019-05-03.2:25:39] Preparing formula... 
+ [INFO] [2019-05-03.2:25:39] Preparing of the object Клиенты Number: 16 is completed!
+ [INFO] [2019-05-03.2:25:39] 
+ *******************************************************************************
+
+ [INFO] [2019-05-03.2:25:39] Connection SPID: 76
+ [INFO] [2019-05-03.2:25:39] Getting Diasoft data types... 
+ [INFO] [2019-05-03.2:25:39] Getting attributes of load... 
+ [INFO] [2019-05-03.2:25:39] Preparing formula... 
+ [INFO] [2019-05-03.2:25:39] Preparing of the object Клиенты Number: 17 is completed!
+ [INFO] [2019-05-03.2:25:39] 
+ *******************************************************************************
+
+ [INFO] [2019-05-03.2:25:39] Connection SPID: 77
+ [INFO] [2019-05-03.2:25:39] Getting Diasoft data types... 
+ [INFO] [2019-05-03.2:25:39] Getting attributes of load... 
+ [INFO] [2019-05-03.2:25:39] Preparing formula... 
+ [INFO] [2019-05-03.2:25:39] Preparing of the object Клиенты Number: 18 is completed!
+ [INFO] [2019-05-03.2:25:39] 
+ *******************************************************************************
+
+ [INFO] [2019-05-03.2:25:39] Connection SPID: 78
+ [INFO] [2019-05-03.2:25:39] Getting Diasoft data types... 
+ [INFO] [2019-05-03.2:25:39] Getting attributes of load... 
+ [INFO] [2019-05-03.2:25:39] Preparing formula... 
+ [INFO] [2019-05-03.2:25:39] Preparing of the object Клиенты Number: 19 is completed!
+ [INFO] [2019-05-03.2:25:39] Start BCP. Pushing object Клиенты Number: 0
+ Lines [0..38]
+ [INFO] [2019-05-03.2:25:39] Rows copied: 39
+ [INFO] [2019-05-03.2:25:39] BCP importing for object Клиенты Number: 0 is completed! 
+
+ *******************************************************************************
+
+ [INFO] [2019-05-03.2:25:39] Start BCP. Pushing object Клиенты Number: 1
+ Lines [39..77]
+ [INFO] [2019-05-03.2:25:40] Rows copied: 39
+ [INFO] [2019-05-03.2:25:40] BCP importing for object Клиенты Number: 1 is completed! 
+
+ *******************************************************************************
+
+ [INFO] [2019-05-03.2:25:40] Start BCP. Pushing object Клиенты Number: 2
+ Lines [78..116]
+ [INFO] [2019-05-03.2:25:40] Rows copied: 39
+ [INFO] [2019-05-03.2:25:40] BCP importing for object Клиенты Number: 2 is completed! 
+
+ *******************************************************************************
+
+ [INFO] [2019-05-03.2:25:40] Start BCP. Pushing object Клиенты Number: 3
+ Lines [117..155]
+ [INFO] [2019-05-03.2:25:40] Rows copied: 39
+ [INFO] [2019-05-03.2:25:40] BCP importing for object Клиенты Number: 3 is completed! 
+
+ *******************************************************************************
+
+ [INFO] [2019-05-03.2:25:40] Start BCP. Pushing object Клиенты Number: 4
+ Lines [156..194]
+ [INFO] [2019-05-03.2:25:40] Rows copied: 39
+ [INFO] [2019-05-03.2:25:40] BCP importing for object Клиенты Number: 4 is completed! 
+
+ *******************************************************************************
+
+ [INFO] [2019-05-03.2:25:40] Start BCP. Pushing object Клиенты Number: 5
+ Lines [195..233]
+ [INFO] [2019-05-03.2:25:40] Rows copied: 39
+ [INFO] [2019-05-03.2:25:40] BCP importing for object Клиенты Number: 5 is completed! 
+
+ *******************************************************************************
+
+ [INFO] [2019-05-03.2:25:40] Start BCP. Pushing object Клиенты Number: 6
+ Lines [234..272]
+ [INFO] [2019-05-03.2:25:40] Rows copied: 39
+ [INFO] [2019-05-03.2:25:40] BCP importing for object Клиенты Number: 6 is completed! 
+
+ *******************************************************************************
+
+ [INFO] [2019-05-03.2:25:40] Start BCP. Pushing object Клиенты Number: 7
+ Lines [273..311]
+ [INFO] [2019-05-03.2:25:40] Rows copied: 39
+ [INFO] [2019-05-03.2:25:40] BCP importing for object Клиенты Number: 7 is completed! 
+
+ *******************************************************************************
+
+ [INFO] [2019-05-03.2:25:40] Start BCP. Pushing object Клиенты Number: 8
+ Lines [312..350]
+ [INFO] [2019-05-03.2:25:40] Rows copied: 39
+ [INFO] [2019-05-03.2:25:40] BCP importing for object Клиенты Number: 8 is completed! 
+
+ *******************************************************************************
+
+ [INFO] [2019-05-03.2:25:40] Start BCP. Pushing object Клиенты Number: 9
+ Lines [351..389]
+ [INFO] [2019-05-03.2:25:40] Rows copied: 39
+ [INFO] [2019-05-03.2:25:40] BCP importing for object Клиенты Number: 9 is completed! 
+
+ *******************************************************************************
+
+ [INFO] [2019-05-03.2:25:40] Start BCP. Pushing object Клиенты Number: 10
+ Lines [390..428]
+ [INFO] [2019-05-03.2:25:40] Rows copied: 39
+ [INFO] [2019-05-03.2:25:40] BCP importing for object Клиенты Number: 10 is completed! 
+
+ *******************************************************************************
+
+ [INFO] [2019-05-03.2:25:40] Start BCP. Pushing object Клиенты Number: 11
+ Lines [429..467]
+ [INFO] [2019-05-03.2:25:40] Rows copied: 39
+ [INFO] [2019-05-03.2:25:40] BCP importing for object Клиенты Number: 11 is completed! 
+
+ *******************************************************************************
+
+ [INFO] [2019-05-03.2:25:40] Start BCP. Pushing object Клиенты Number: 12
+ Lines [468..506]
+ [INFO] [2019-05-03.2:25:40] Rows copied: 39
+ [INFO] [2019-05-03.2:25:40] BCP importing for object Клиенты Number: 12 is completed! 
+
+ *******************************************************************************
+
+ [INFO] [2019-05-03.2:25:40] Start BCP. Pushing object Клиенты Number: 13
+ Lines [507..545]
+ [INFO] [2019-05-03.2:25:40] Rows copied: 39
+ [INFO] [2019-05-03.2:25:40] BCP importing for object Клиенты Number: 13 is completed! 
+
+ *******************************************************************************
+
+ [INFO] [2019-05-03.2:25:40] Start BCP. Pushing object Клиенты Number: 14
+ Lines [546..584]
+ [INFO] [2019-05-03.2:25:40] Rows copied: 39
+ [INFO] [2019-05-03.2:25:40] BCP importing for object Клиенты Number: 14 is completed! 
+
+ *******************************************************************************
+
+ [INFO] [2019-05-03.2:25:40] Start BCP. Pushing object Клиенты Number: 15
+ Lines [585..608]
+ [INFO] [2019-05-03.2:25:40] Rows copied: 24
+ [INFO] [2019-05-03.2:25:41] BCP importing for object Клиенты Number: 15 is completed! 
+
+ *******************************************************************************
+
+ [INFO] [2019-05-03.2:25:41] Start BCP. Pushing object Клиенты Number: 16
+ Lines [608..608]
+ [INFO] [2019-05-03.2:25:41] Rows copied: 1
+ [INFO] [2019-05-03.2:25:41] BCP importing for object Клиенты Number: 16 is completed! 
+
+ *******************************************************************************
+
+ [INFO] [2019-05-03.2:25:41] Start BCP. Pushing object Клиенты Number: 17
+ Lines [608..608]
+ [INFO] [2019-05-03.2:25:41] Rows copied: 1
+ [INFO] [2019-05-03.2:25:41] BCP importing for object Клиенты Number: 17 is completed! 
+
+ *******************************************************************************
+
+ [INFO] [2019-05-03.2:25:41] Start BCP. Pushing object Клиенты Number: 18
+ Lines [608..608]
+ [INFO] [2019-05-03.2:25:41] Rows copied: 1
+ [INFO] [2019-05-03.2:25:41] BCP importing for object Клиенты Number: 18 is completed! 
+
+ *******************************************************************************
+
+ [INFO] [2019-05-03.2:25:41] Start BCP. Pushing object Клиенты Number: 19
+ Lines [608..608]
+ [INFO] [2019-05-03.2:25:41] Rows copied: 1
+ [INFO] [2019-05-03.2:25:41] BCP importing for object Клиенты Number: 19 is completed! 
+
+ *******************************************************************************
+
+ [INFO] [2019-05-03.2:25:41] Number of loads: 20
+ [INFO] [2019-05-03.2:25:41] Thread  [1] started. SQL Server SPID: 58.
+ [INFO] [2019-05-03.2:25:41] Thread  [2] started. SQL Server SPID: 59.
+ [INFO] [2019-05-03.2:25:41] Thread  [3] started. SQL Server SPID: 60.
+ [INFO] [2019-05-03.2:25:41] Thread  [4] started. SQL Server SPID: 61.
+ [INFO] [2019-05-03.2:25:41] Thread  [5] started. SQL Server SPID: 62.
+ [INFO] [2019-05-03.2:25:41] Thread  [6] started. SQL Server SPID: 63.
+ [INFO] [2019-05-03.2:25:41] Thread  [7] started. SQL Server SPID: 64.
+ [INFO] [2019-05-03.2:25:41] Thread  [8] started. SQL Server SPID: 65.
+ [INFO] [2019-05-03.2:25:41] Thread  [9] started. SQL Server SPID: 66.
+ [INFO] [2019-05-03.2:25:41] Thread  [10] started. SQL Server SPID: 67.
+ [INFO] [2019-05-03.2:25:41] Thread  [11] started. SQL Server SPID: 69.
+ [INFO] [2019-05-03.2:25:41] Thread  [12] started. SQL Server SPID: 70.
+ [INFO] [2019-05-03.2:25:41] Thread  [13] started. SQL Server SPID: 71.
+ [INFO] [2019-05-03.2:25:41] Thread  [14] started. SQL Server SPID: 72.
+ [INFO] [2019-05-03.2:25:41] Thread  [15] started. SQL Server SPID: 73.
+ [INFO] [2019-05-03.2:25:41] Thread  [16] started. SQL Server SPID: 74.
+ [INFO] [2019-05-03.2:25:41] Thread  [17] started. SQL Server SPID: 75.
+ [INFO] [2019-05-03.2:25:41] Thread  [18] started. SQL Server SPID: 76.
+ [INFO] [2019-05-03.2:25:41] Thread  [19] started. SQL Server SPID: 77.
+ [INFO] [2019-05-03.2:25:41] Thread  [20] started. SQL Server SPID: 78.
+ [ERROR] [2019-05-03.2:25:42] 
+ SQLTask  SQLExecDirect failed 
+  RetVal: -1
+ Native Error: 0
+SQL State: 01000
+Message: [Microsoft][SQL Server Native Client 11.0][SQL Server] 
+ [ERROR] [2019-05-03.2:25:47] 
+ SQLTask  SQLExecDirect failed 
+  RetVal: -1
+ Native Error: 0
+SQL State: 01000
+Message: [Microsoft][SQL Server Native Client 11.0][SQL Server] 
+ [ERROR] [2019-05-03.2:25:49] 
+ SQLTask  SQLExecDirect failed 
+  RetVal: -1
+ Native Error: 0
+SQL State: 01000
+Message: [Microsoft][SQL Server Native Client 11.0][SQL Server] 
+ [ERROR] [2019-05-03.2:25:51] 
+ SQLTask  SQLExecDirect failed 
+  RetVal: -1
+ Native Error: 0
+SQL State: 01000
+Message: [Microsoft][SQL Server Native Client 11.0][SQL Server] 
+ [INFO] [2019-05-03.2:25:51] Thread [20] - SQL statement executed. SQL Server SPID: 78.
+ [INFO] [2019-05-03.2:26:08] Thread [16] - SQL statement executed. SQL Server SPID: 74.
+ [INFO] [2019-05-03.2:26:28] Thread [14] - SQL statement executed. SQL Server SPID: 72.
+ [INFO] [2019-05-03.2:26:29] Thread [11] - SQL statement executed. SQL Server SPID: 69.
+ [INFO] [2019-05-03.2:26:29] Thread [10] - SQL statement executed. SQL Server SPID: 67.
+ [INFO] [2019-05-03.2:26:30] Thread [12] - SQL statement executed. SQL Server SPID: 70.
+ [INFO] [2019-05-03.2:26:30] Thread [15] - SQL statement executed. SQL Server SPID: 73.
+ [INFO] [2019-05-03.2:26:30] Thread [13] - SQL statement executed. SQL Server SPID: 71.
+ [INFO] [2019-05-03.2:26:32] Thread [9] - SQL statement executed. SQL Server SPID: 66.
+ [INFO] [2019-05-03.2:26:34] Thread [4] - SQL statement executed. SQL Server SPID: 61.
+ [INFO] [2019-05-03.2:26:34] Thread [6] - SQL statement executed. SQL Server SPID: 63.
+ [INFO] [2019-05-03.2:26:34] Thread [8] - SQL statement executed. SQL Server SPID: 65.
+ [INFO] [2019-05-03.2:26:35] Thread [3] - SQL statement executed. SQL Server SPID: 60.
+ [INFO] [2019-05-03.2:26:35] Thread [2] - SQL statement executed. SQL Server SPID: 59.
+ [INFO] [2019-05-03.2:26:35] Thread [7] - SQL statement executed. SQL Server SPID: 64.
+ [INFO] [2019-05-03.2:26:35] Thread [5] - SQL statement executed. SQL Server SPID: 62.

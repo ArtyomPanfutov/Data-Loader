@@ -11,7 +11,7 @@
 #include <sql.h>
 #include <sqlext.h>
 #include <string>
-#include <odbcss.h>
+//#include <odbcss.h>
 
 
 

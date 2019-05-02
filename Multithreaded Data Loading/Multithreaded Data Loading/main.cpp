@@ -179,8 +179,8 @@ int main()
 		}
 
 		// Start SQL postprocessing.
-		MainObj.RunLoadsInAsyncMode(MainObj.FALoads, 0);
-	}
+		MainObj.CreateThreadsAndRun(MainObj.FALoads);
+	}  
 	catch (std::exception &ex)
 	{
 		std::string ErrorMessage(ex.what());

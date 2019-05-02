@@ -9,6 +9,8 @@
 #include "constant.h"
 #include <string>
 #include "Output.h"
+#include <thread>
+#include <mutex>
 
 //////////////////////////////////////////////////////////////////////
 
@@ -19,6 +21,7 @@
 std::string AsyncLogFileName = "LoadLog.txt";
 std::string AsyncLogMessage;
 Log AsyncLoadLogWriter(AsyncLogFileName);
+std::mutex mtx;
 
 // AsyncLoad constructor
 ////////////////////////////////////////////////////////////////////////
@@ -43,7 +46,7 @@ void AsyncLoad::RunLoadsInAsyncMode(std::vector <FALoad *> &Loads, unsigned long
 {
 	SQLRETURN SqlReturnCode = 0, mrRetcode;
 
-	SQLINTEGER cbRetVal;
+	SQLLEN cbRetVal;
 
 	SQLHSTMT CurSTMT;
 
@@ -187,3 +190,87 @@ void AsyncLoad::Message(std::string &text)
 {
 	std::cout << std::endl << text;
 }
+
+// SQLTask
+/////////////////////////////////////////////////////////////////////
+void AsyncLoad::SQLTask(SQLHSTMT CurSTMT, SQLCHAR* Statement, int ThreadNumber, int ThreadSPID)
+{
+	try
+	{
+		SQLRETURN SqlReturnCode = 0, Ret, mrRetcode;
+		SQLSMALLINT MsgLen = 0;
+		SQLCHAR _SQLState[6], _SQLMessage[256];
+		SQLINTEGER NativeError = 0;
+		SQLLEN cbRetVal;
+	
+		mtx.lock();
+		AsyncLogMessage = "Thread  [" + std::to_string(ThreadNumber) + "] started. SQL Server SPID: " + std::to_string(ThreadSPID) + ".";
+		AsyncLoadLogWriter.Push(AsyncLogMessage, INFO_MESSAGE, true);
+		mtx.unlock();
+
+		// Set async mode OFF.
+		SqlReturnCode = SQLSetStmtAttr(
+			CurSTMT,
+			SQL_ATTR_ASYNC_ENABLE,
+			reinterpret_cast<SQLPOINTER>(SQL_ASYNC_ENABLE_OFF),
+			0);
+
+		if (SqlReturnCode != SQL_SUCCESS && SqlReturnCode != SQL_SUCCESS_WITH_INFO)
+			throw SQLException("\n ERROR: SQLTask failed! SQLSetStmtAttr(ASYNC_ENABLE OFF)\n", SqlReturnCode);
+
+		SqlReturnCode = SQLExecDirect(CurSTMT, (unsigned char*)Statement, SQL_NTS);
+
+		if (SqlReturnCode != SQL_SUCCESS && SqlReturnCode != SQL_SUCCESS_WITH_INFO)
+		{
+			throw SQLException("\n SQLTask \ SQLExecDirect failed ", SqlReturnCode);
+		}
+		mtx.lock();
+		AsyncLogMessage = "Thread [" + std::to_string(ThreadNumber) +"] - SQL statement executed. SQL Server SPID: " + std::to_string(ThreadSPID) + ".";
+		AsyncLoadLogWriter.Push(AsyncLogMessage, INFO_MESSAGE, true);
+		mtx.unlock();
+			
+		SqlReturnCode = SQLFreeStmt(CurSTMT, SQL_CLOSE);
+		if (SqlReturnCode != SQL_SUCCESS && SqlReturnCode != SQL_SUCCESS_WITH_INFO)
+			throw SQLException("\n ERROR: SQLTask failed! SQLFreeStmt failed!\n", SqlReturnCode);
+	}
+	catch (SQLException &ex)
+	{
+		ex.ShowMessage(CurSTMT);
+	}
+
+}
+//-------------------------------------------------------------------
+
+// CreateThreadsAndRun
+/////////////////////////////////////////////////////////////////////
+void AsyncLoad::CreateThreadsAndRun(std::vector <FALoad *> &Loads)
+{
+	try
+	{
+		int CurrentLoad = 1;
+		std::vector<std::thread *> SQLThread;
+
+		AsyncLogMessage = "Number of loads: " + std::to_string(Loads.size());
+		AsyncLoadLogWriter.Push(AsyncLogMessage, INFO_MESSAGE, true);
+
+		// Start threads
+		for (auto const& Load : Loads)
+		{
+			SQLThread.push_back(new std::thread(SQLTask, Load->GetHSTMT(), (unsigned char*)Load->LastFormulaStr.c_str(), CurrentLoad, Load->SPID));			
+			CurrentLoad++;
+		}
+
+		// Wait for all threads
+		for (auto const& Thread : SQLThread)
+		{
+			Thread->join();
+		}
+	}
+	catch (std::exception &e)
+	{
+	  std::cout << e.what();
+	}
+}
+//-------------------------------------------------------------------
+
+

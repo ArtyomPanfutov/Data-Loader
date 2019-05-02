@@ -1,0 +1,11 @@
+﻿  AsyncLoad.cpp
+d:\apanfutov\black hole\c++_proj\asyncloader\multithreaded-data-loading\multithreaded data loading\multithreaded data loading\output.h(1): warning C4005: _CRT_SECURE_NO_WARNINGS: изменение макроопределения
+  d:\apanfutov\black hole\c++_proj\asyncloader\multithreaded-data-loading\multithreaded data loading\multithreaded data loading\output.h(1): note: аргументы командной строки:  см. предыдущее определение "_CRT_SECURE_NO_WARNINGS"
+d:\apanfutov\black hole\c++_proj\asyncloader\multithreaded-data-loading\multithreaded data loading\multithreaded data loading\asyncload.cpp(86): warning C4101: returnval: неиспользованная локальная переменная
+d:\apanfutov\black hole\c++_proj\asyncloader\multithreaded-data-loading\multithreaded data loading\multithreaded data loading\asyncload.cpp(225): warning C4129: : неизвестная escape-последовательность
+d:\apanfutov\black hole\c++_proj\asyncloader\multithreaded-data-loading\multithreaded data loading\multithreaded data loading\asyncload.cpp(202): warning C4101: _SQLMessage: неиспользованная локальная переменная
+d:\apanfutov\black hole\c++_proj\asyncloader\multithreaded-data-loading\multithreaded data loading\multithreaded data loading\asyncload.cpp(200): warning C4101: mrRetcode: неиспользованная локальная переменная
+d:\apanfutov\black hole\c++_proj\asyncloader\multithreaded-data-loading\multithreaded data loading\multithreaded data loading\asyncload.cpp(204): warning C4101: cbRetVal: неиспользованная локальная переменная
+d:\apanfutov\black hole\c++_proj\asyncloader\multithreaded-data-loading\multithreaded data loading\multithreaded data loading\asyncload.cpp(200): warning C4101: Ret: неиспользованная локальная переменная
+d:\apanfutov\black hole\c++_proj\asyncloader\multithreaded-data-loading\multithreaded data loading\multithreaded data loading\asyncload.cpp(202): warning C4101: _SQLState: неиспользованная локальная переменная
+  Multithreaded Data Loading.vcxproj -> D:\apanfutov\black hole\c++_proj\AsyncLoader\Multithreaded-Data-Loading\Multithreaded Data Loading\Debug\Multithreaded Data Loading.exe
